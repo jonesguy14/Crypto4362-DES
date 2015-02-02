@@ -80,7 +80,7 @@ int main( int argc, char *argv[] )
 
     //vector to store all the sboxes, will be vector of vector of vectors :^)
     vector< vector< vector<int> > > sboxes;
-    int sbox_width, sbox_height, line_start_sbox, sbox_count = 0;
+    int sbox_width, sbox_height, line_start_sbox, sbox_count, sbox_row = 0;
 
     //NEXT, GET PARAMETERS FROM FILES
     ifstream param_file;
@@ -188,7 +188,7 @@ int main( int argc, char *argv[] )
                     istringstream issbox( line );
                     copy( istream_iterator<int>(issbox),
                           istream_iterator<int>(),
-                          back_inserter(sboxes[sbox_count][sboxrow]) );
+                          back_inserter(sboxes[sbox_count][sbox_row]) );
 
                 }
 
