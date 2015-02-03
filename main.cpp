@@ -68,6 +68,8 @@ int main( int argc, char *argv[] )
         }
     }
 
+    cout << "Done with flags" << endl;
+
     int block_size, key_size, eff_key_size, rnd_key_size, num_rounds, num_sboxes;
     vector<string> permute_choice_pc1_vec;
     vector<string> permute_choice_pc2_vec;
@@ -79,6 +81,7 @@ int main( int argc, char *argv[] )
     vector<int>    col_selection_vec;
 
     //vector to store all the sboxes, will be vector of vector of vectors :^)
+    //to retrieve: sboxes[sbox number][sbox row][sbox column]
     vector< vector< vector<int> > > sboxes;
     int sbox_width, sbox_height, line_start_sbox, sbox_count, sbox_row = 0;
 
@@ -180,7 +183,7 @@ int main( int argc, char *argv[] )
                     //sbox territory
                     sbox_height = 2 ^ (rnd_key_size/num_sboxes - block_size/(2 * num_sboxes)); //num rows
                     sbox_width  = 2 ^ (block_size/(2 * num_sboxes)); //num columns
-                    line_start_sbox = 14;
+                    line_start_sbox = 14; //sboxes start on the 14th relevant line in param file
 
                     sbox_count = (line_counter - line_start_sbox) / sbox_height; //which # sbox we are on
                     sbox_row = sbox_count * sbox_height + (line_counter - line_start_sbox); //which row in that sbox
@@ -189,14 +192,27 @@ int main( int argc, char *argv[] )
                     copy( istream_iterator<int>(issbox),
                           istream_iterator<int>(),
                           back_inserter(sboxes[sbox_count][sbox_row]) );
+                    //this should insert the row from the file as a row in the correct sbox
 
                 }
 
-                line_counter++; //increment line counter so we know what is next
+                line_counter++; //increment line counter so we know what is next, will only increment if has data
 
             }
         }
-     }
+    }
+
+    //Printing to make sure parsing was correct
+    cout << "Block Size: " << block_size << endl;
+    cout << "Key Size: " << key_size << endl;
+    cout << "Eff Key Size: " << eff_key_size << endl;
+    cout << "Round Key Size: " << rnd_key_size << endl;
+    cout << "Num Rounds: " << num_rounds << endl;
+    cout << "Perm1: ";
+    for (int i = 0; i < permute_choice_pc1_vec.size(); ++i) {
+        cout << permute_choice_pc1_vec[i] << " ";
+    }
+
 
     return 0;
 }
