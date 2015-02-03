@@ -5,6 +5,7 @@
 #include <iterator>
 #include <algorithm>
 #include <vector>
+#include <math.h>
 
 using namespace std;
 
@@ -180,19 +181,26 @@ int main( int argc, char *argv[] )
                 } //end switch
 
                 if ( line_counter > 13 ) {
+                    cout << "Parsing sboxes" << endl;
                     //sbox territory
-                    sbox_height = 2 ^ (rnd_key_size/num_sboxes - block_size/(2 * num_sboxes)); //num rows
-                    sbox_width  = 2 ^ (block_size/(2 * num_sboxes)); //num columns
+                    sbox_height = pow( 2 , (rnd_key_size/num_sboxes - block_size/(2 * num_sboxes)) ); //num rows
+                    sbox_width  = pow( 2 , (block_size/(2 * num_sboxes)) ); //num columns
                     line_start_sbox = 14; //sboxes start on the 14th relevant line in param file
+
+                    cout << "Found ht=" << sbox_height << ", wdth=" << sbox_width << endl;
 
                     sbox_count = (line_counter - line_start_sbox) / sbox_height; //which # sbox we are on
                     sbox_row = sbox_count * sbox_height + (line_counter - line_start_sbox); //which row in that sbox
+
+                    cout << "calced row/col, sbox count=" << sbox_count << ", sbox row=" << sbox_row << endl;
 
                     istringstream issbox( line );
                     copy( istream_iterator<int>(issbox),
                           istream_iterator<int>(),
                           back_inserter(sboxes[sbox_count][sbox_row]) );
                     //this should insert the row from the file as a row in the correct sbox
+
+                    cout << "brea" << endl;
 
                 }
 
@@ -212,6 +220,39 @@ int main( int argc, char *argv[] )
     for (int i = 0; i < permute_choice_pc1_vec.size(); ++i) {
         cout << permute_choice_pc1_vec[i] << " ";
     }
+    cout << "\nPerm2: ";
+    for (int i = 0; i < permute_choice_pc2_vec.size(); ++i) {
+        cout << permute_choice_pc2_vec[i] << " ";
+    }
+    cout << "\nRotation: ";
+    for (int i = 0; i < rotation_schedule_vec.size(); ++i) {
+        cout << rotation_schedule_vec[i] << " ";
+    }
+    cout << "\nInit permutation: ";
+    for (int i = 0; i < init_permute_vec.size(); ++i) {
+        cout << init_permute_vec[i] << " ";
+    }
+    cout << "\nExpand permutation: ";
+    for (int i = 0; i < expan_permute_vec.size(); ++i) {
+        cout << expan_permute_vec[i] << " ";
+    }
+    cout << "\nP-Box transposition: ";
+    for (int i = 0; i < pbox_trans_perm_vec.size(); ++i) {
+        cout << pbox_trans_perm_vec[i] << " ";
+    }
+    cout << "\nNum SBoxes: " << num_sboxes << endl;
+    cout << "Row Select Bits: ";
+    for (int i = 0; i < row_selection_vec.size(); ++i) {
+        cout << row_selection_vec[i] << " ";
+    }
+    cout << "\nColumn Select Bits: ";
+    for (int i = 0; i < col_selection_vec.size(); ++i) {
+        cout << col_selection_vec[i] << " ";
+    }
+
+
+
+
 
 
     return 0;
