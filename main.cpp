@@ -24,12 +24,12 @@ int main( int argc, char *argv[] )
     bool using_stdin  = false; //if using stdin instead of input file
     bool using_stdout = false; //if using stdout instead of output file
 
-    if ( argc > 7 ) {
+    if ( argc > 8 ) {
         cout << "Too many flags detected." << endl;
         return 1;
     }
 
-    for (int i = 0; i < argc; ++i) { //run through each flag detected
+    for (int i = 1; i < argc; ++i) { //run through each flag detected
         string arg_str = argv[i]; //set arg to string for easy comparison
         if ( arg_str == "-e" ) {
             encrypt = true;
