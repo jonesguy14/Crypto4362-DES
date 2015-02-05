@@ -21,6 +21,6 @@ std::string binToHex(std::string binary_input);
 std::string hexToBin(std::string hex_input, unsigned int size);
 std::string decToBin(int decimal_input, unsigned int size);
 int hex_char_to_decimal(std::string c);
-int binToDec(std::string binary_input);
+unsigned long long binToDec(std::string binary_input);
 
 #endif

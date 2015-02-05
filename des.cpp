@@ -85,7 +85,7 @@ int hex_char_to_decimal(std::string c)
 	return numb;
 }
 
-int binToDec(std::string binary_input)
+unsigned long long binToDec(std::string binary_input)
 {
-	return (int)std::bitset<64>(binary_input).to_ullong();
+	return std::bitset<64>(binary_input).to_ullong();
 }

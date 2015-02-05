@@ -282,8 +282,8 @@ int main( int argc, char *argv[] )
 
     string left, right;
     string key = hexToBin("357", key_size); //the master key
-    //Demonstration of a single round
     for (unsigned int i = 0; i < num_rounds; ++i){}
+    //Demonstration of a single round
     for (unsigned int i = 0; i < 1; ++i)
     {
         string plain = "10010101";
@@ -328,7 +328,7 @@ int main( int argc, char *argv[] )
         cout << "Expansion Permutation: " + right << endl;
         string xi = XOR(right, round_key);
         cout << "XOR with Round Key: " + xi << endl;
-        cout << binToDec("5");
+        //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
     }
 
     return 0;
