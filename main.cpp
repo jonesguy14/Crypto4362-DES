@@ -9,6 +9,32 @@
 
 using namespace std;
 
+vector< vector< vector<int> > > make_sboxes(vector<string> lines, int num_sboxes, int sbox_height, int sbox_width) {
+    vector< vector< vector<int> > > result;
+    vector< vector<int> > new_box;
+    vector<int> new_row;
+    int counter = 0;
+    for (int i = 0; i < num_sboxes; i++) {
+        new_box.clear();
+        for (int j = 0; j < sbox_height; j++) {
+            new_row.clear();
+
+            string buf; // Have a buffer string
+            stringstream ss( lines[counter] ); // Insert the string into a stream
+            while (ss >> buf) {
+                //cout << "bout to print ";
+                //cout << atoi( buf.c_str() ) << endl;
+                new_row.push_back( atoi( buf.c_str() ) ); //sboxes[sbox_count][sbox_row]
+            }
+
+            new_box.push_back( new_row );
+            counter ++;
+        }
+        result.push_back( new_box );
+    }
+    return result;
+}
+
 int main( int argc, char *argv[] )
 {
     bool encrypt = false; //if want to encrypt input
@@ -85,6 +111,8 @@ int main( int argc, char *argv[] )
     //to retrieve: sboxes[sbox number][sbox row][sbox column]
     vector< vector< vector<int> > > sboxes;
     int sbox_width, sbox_height, line_start_sbox, sbox_count, sbox_row = 0;
+    bool initSBoxvec = false;
+    vector<string> sbox_lines;
 
     //NEXT, GET PARAMETERS FROM FILES
     ifstream param_file;
@@ -102,112 +130,100 @@ int main( int argc, char *argv[] )
                 if ( line_counter < 5 || line_counter == 11 ) { //will remove whitespace from entries which aren't vectors
                     line.erase( remove_if( line.begin(), line.end(), ::isspace ), line.end() ); //should remove whitespace
                 }
-                //whats left should be the final string
-                switch ( line_counter ) {
-                    case 0: //block size
-                        block_size = atoi( line.c_str() );
-                        break;
-                    case 1: //key size
-                        key_size = atoi( line.c_str() );
-                        break;
-                    case 2: //effective key size
-                        eff_key_size = atoi( line.c_str() );
-                        break;
-                    case 3: //round key size
-                        rnd_key_size = atoi( line.c_str() );
-                        break;
-                    case 4: //number of rounds
-                        num_rounds = atoi( line.c_str() );
-                        break;
-                    case 5: //initial permuted choice (pc1)
-                        { istringstream iss5( line );
-                        copy( istream_iterator<string>(iss5),
-                              istream_iterator<string>(),
-                              back_inserter(permute_choice_pc1_vec) ); }
-                        // this should split by spaces and insert items into permute choice pc1 vector
-                        break;
-                    case 6: //permute choice 2
-                        { istringstream iss6( line );
-                        copy( istream_iterator<string>(iss6),
-                              istream_iterator<string>(),
-                              back_inserter(permute_choice_pc2_vec) ); }
-                        // this should split by spaces and insert items into permute choice pc2 vector
-                        break;
-                    case 7: //rotation schedule
-                        { istringstream iss7( line );
-                        copy( istream_iterator<int>(iss7),
-                              istream_iterator<int>(),
-                              back_inserter(rotation_schedule_vec) ); }
-                        // this should split by spaces and insert items into rotate schedule vector
-                        break;
-                    case 8: //initial permutation
-                        { istringstream iss8( line );
-                        copy( istream_iterator<int>(iss8),
-                              istream_iterator<int>(),
-                              back_inserter(init_permute_vec) ); }
-                        // this should split by spaces and insert items into initial permutation vector
-                        break;
-                    case 9: //expansion permutation
-                        { istringstream iss9( line );
-                        copy( istream_iterator<int>(iss9),
-                              istream_iterator<int>(),
-                              back_inserter(expan_permute_vec) ); }
-                        // this should split by spaces and insert items into expansion permutation vector
-                        break;
-                    case 10: //p-box transposition permutation
-                        { istringstream iss10( line );
-                        copy( istream_iterator<int>(iss10),
-                              istream_iterator<int>(),
-                              back_inserter(pbox_trans_perm_vec) ); }
-                        // this should split by spaces and insert items into pbox vector
-                        break;
-                    case 11: //number of sboxes
-                        num_sboxes = atoi( line.c_str() );
-                        break;
-                    case 12: //row selection bits
-                        { istringstream iss12( line );
-                        copy( istream_iterator<int>(iss12),
-                              istream_iterator<int>(),
-                              back_inserter(row_selection_vec) ); }
-                        // this should split by spaces and insert items into row select vector
-                        break;
-                    case 13: //column selection bits
-                        { istringstream iss13( line );
-                        copy( istream_iterator<int>(iss13),
-                              istream_iterator<int>(),
-                              back_inserter(col_selection_vec) ); }
-                        // this should split by spaces and insert items into column select vector
-                        break;
-                } //end switch
+                if ( line.length() > 0 ) {
+                    //whats left should be the final string
+                    switch ( line_counter ) {
+                        case 0: //block size
+                            block_size = atoi( line.c_str() );
+                            break;
+                        case 1: //key size
+                            key_size = atoi( line.c_str() );
+                            break;
+                        case 2: //effective key size
+                            eff_key_size = atoi( line.c_str() );
+                            break;
+                        case 3: //round key size
+                            rnd_key_size = atoi( line.c_str() );
+                            break;
+                        case 4: //number of rounds
+                            num_rounds = atoi( line.c_str() );
+                            break;
+                        case 5: //initial permuted choice (pc1)
+                            { istringstream iss5( line );
+                            copy( istream_iterator<string>(iss5),
+                                  istream_iterator<string>(),
+                                  back_inserter(permute_choice_pc1_vec) ); }
+                            // this should split by spaces and insert items into permute choice pc1 vector
+                            break;
+                        case 6: //permute choice 2
+                            { istringstream iss6( line );
+                            copy( istream_iterator<string>(iss6),
+                                  istream_iterator<string>(),
+                                  back_inserter(permute_choice_pc2_vec) ); }
+                            // this should split by spaces and insert items into permute choice pc2 vector
+                            break;
+                        case 7: //rotation schedule
+                            { istringstream iss7( line );
+                            copy( istream_iterator<int>(iss7),
+                                  istream_iterator<int>(),
+                                  back_inserter(rotation_schedule_vec) ); }
+                            // this should split by spaces and insert items into rotate schedule vector
+                            break;
+                        case 8: //initial permutation
+                            { istringstream iss8( line );
+                            copy( istream_iterator<int>(iss8),
+                                  istream_iterator<int>(),
+                                  back_inserter(init_permute_vec) ); }
+                            // this should split by spaces and insert items into initial permutation vector
+                            break;
+                        case 9: //expansion permutation
+                            { istringstream iss9( line );
+                            copy( istream_iterator<int>(iss9),
+                                  istream_iterator<int>(),
+                                  back_inserter(expan_permute_vec) ); }
+                            // this should split by spaces and insert items into expansion permutation vector
+                            break;
+                        case 10: //p-box transposition permutation
+                            { istringstream iss10( line );
+                            copy( istream_iterator<int>(iss10),
+                                  istream_iterator<int>(),
+                                  back_inserter(pbox_trans_perm_vec) ); }
+                            // this should split by spaces and insert items into pbox vector
+                            break;
+                        case 11: //number of sboxes
+                            num_sboxes = atoi( line.c_str() );
+                            break;
+                        case 12: //row selection bits
+                            { istringstream iss12( line );
+                            copy( istream_iterator<int>(iss12),
+                                  istream_iterator<int>(),
+                                  back_inserter(row_selection_vec) ); }
+                            // this should split by spaces and insert items into row select vector
+                            break;
+                        case 13: //column selection bits
+                            { istringstream iss13( line );
+                            copy( istream_iterator<int>(iss13),
+                                  istream_iterator<int>(),
+                                  back_inserter(col_selection_vec) ); }
+                            // this should split by spaces and insert items into column select vector
+                            line_counter ++;
+                            break;
+                    } //end switch
 
-                if ( line_counter > 13 ) {
-                    cout << "Parsing sboxes" << endl;
-                    //sbox territory
-                    sbox_height = pow( 2 , (rnd_key_size/num_sboxes - block_size/(2 * num_sboxes)) ); //num rows
-                    sbox_width  = pow( 2 , (block_size/(2 * num_sboxes)) ); //num columns
-                    line_start_sbox = 14; //sboxes start on the 14th relevant line in param file
+                    if ( line_counter > 15 ) {
+                        //cout << "Parsing sboxes" << endl;
+                        if (line[0] != ' ' && line[0] != '\t') {sbox_lines.push_back(line);}
 
-                    cout << "Found ht=" << sbox_height << ", wdth=" << sbox_width << endl;
+                    }
 
-                    sbox_count = (line_counter - line_start_sbox) / sbox_height; //which # sbox we are on
-                    sbox_row = sbox_count * sbox_height + (line_counter - line_start_sbox); //which row in that sbox
-
-                    cout << "calced row/col, sbox count=" << sbox_count << ", sbox row=" << sbox_row << endl;
-
-                    istringstream issbox( line );
-                    copy( istream_iterator<int>(issbox),
-                          istream_iterator<int>(),
-                          back_inserter(sboxes[sbox_count][sbox_row]) );
-                    //this should insert the row from the file as a row in the correct sbox
-
-                    cout << "brea" << endl;
-
+                    line_counter++; //increment line counter so we know what is next, will only increment if has data
                 }
-
-                line_counter++; //increment line counter so we know what is next, will only increment if has data
-
             }
         }
+
+        sbox_height = pow( 2 , (rnd_key_size/num_sboxes - block_size/(2 * num_sboxes)) ); //num rows
+        sbox_width  = pow( 2 , (block_size/(2 * num_sboxes)) ); //num columns
+        sboxes = make_sboxes( sbox_lines, num_sboxes, sbox_height, sbox_width );
     }
 
     //Printing to make sure parsing was correct
@@ -250,7 +266,16 @@ int main( int argc, char *argv[] )
         cout << col_selection_vec[i] << " ";
     }
 
-
+    cout << "\nSboxes" << endl;
+    for (int i = 0; i < num_sboxes; ++i) {
+        for (int j = 0; j < sbox_height; ++j) {
+            for (int k = 0; k < sbox_width; ++k) {
+                cout << sboxes[i][j][k];
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
 
 
 
