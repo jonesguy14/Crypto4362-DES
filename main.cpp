@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <vector>
 #include <math.h>
+#include "des.h"
 
 using namespace std;
 
@@ -98,14 +99,14 @@ int main( int argc, char *argv[] )
     cout << "Done with flags" << endl;
 
     int block_size, key_size, eff_key_size, rnd_key_size, num_rounds, num_sboxes;
-    vector<string> permute_choice_pc1_vec;
-    vector<string> permute_choice_pc2_vec;
-    vector<int>    rotation_schedule_vec;
-    vector<int>    init_permute_vec;
-    vector<int>    expan_permute_vec;
-    vector<int>    pbox_trans_perm_vec;
-    vector<int>    row_selection_vec;
-    vector<int>    col_selection_vec;
+    vector<string>    permute_choice_pc1_vec;
+    vector<string>    permute_choice_pc2_vec;
+    vector<string>    rotation_schedule_vec;
+    vector<string>    init_permute_vec;
+    vector<string>    expan_permute_vec;
+    vector<string>    pbox_trans_perm_vec;
+    vector<string>    row_selection_vec;
+    vector<string>    col_selection_vec;
 
     //vector to store all the sboxes, will be vector of vector of vectors :^)
     //to retrieve: sboxes[sbox number][sbox row][sbox column]
@@ -130,6 +131,7 @@ int main( int argc, char *argv[] )
                 if ( line_counter < 5 || line_counter == 11 ) { //will remove whitespace from entries which aren't vectors
                     line.erase( remove_if( line.begin(), line.end(), ::isspace ), line.end() ); //should remove whitespace
                 }
+
                 if ( line.length() > 0 ) {
                     //whats left should be the final string
                     switch ( line_counter ) {
@@ -164,29 +166,29 @@ int main( int argc, char *argv[] )
                             break;
                         case 7: //rotation schedule
                             { istringstream iss7( line );
-                            copy( istream_iterator<int>(iss7),
-                                  istream_iterator<int>(),
+                            copy( istream_iterator<string>(iss7),
+                                  istream_iterator<string>(),
                                   back_inserter(rotation_schedule_vec) ); }
                             // this should split by spaces and insert items into rotate schedule vector
                             break;
                         case 8: //initial permutation
                             { istringstream iss8( line );
-                            copy( istream_iterator<int>(iss8),
-                                  istream_iterator<int>(),
+                            copy( istream_iterator<string>(iss8),
+                                  istream_iterator<string>(),
                                   back_inserter(init_permute_vec) ); }
                             // this should split by spaces and insert items into initial permutation vector
                             break;
                         case 9: //expansion permutation
                             { istringstream iss9( line );
-                            copy( istream_iterator<int>(iss9),
-                                  istream_iterator<int>(),
+                            copy( istream_iterator<string>(iss9),
+                                  istream_iterator<string>(),
                                   back_inserter(expan_permute_vec) ); }
                             // this should split by spaces and insert items into expansion permutation vector
                             break;
                         case 10: //p-box transposition permutation
                             { istringstream iss10( line );
-                            copy( istream_iterator<int>(iss10),
-                                  istream_iterator<int>(),
+                            copy( istream_iterator<string>(iss10),
+                                  istream_iterator<string>(),
                                   back_inserter(pbox_trans_perm_vec) ); }
                             // this should split by spaces and insert items into pbox vector
                             break;
@@ -195,15 +197,15 @@ int main( int argc, char *argv[] )
                             break;
                         case 12: //row selection bits
                             { istringstream iss12( line );
-                            copy( istream_iterator<int>(iss12),
-                                  istream_iterator<int>(),
+                            copy( istream_iterator<string>(iss12),
+                                  istream_iterator<string>(),
                                   back_inserter(row_selection_vec) ); }
                             // this should split by spaces and insert items into row select vector
                             break;
                         case 13: //column selection bits
                             { istringstream iss13( line );
-                            copy( istream_iterator<int>(iss13),
-                                  istream_iterator<int>(),
+                            copy( istream_iterator<string>(iss13),
+                                  istream_iterator<string>(),
                                   back_inserter(col_selection_vec) ); }
                             // this should split by spaces and insert items into column select vector
                             line_counter ++;
@@ -218,6 +220,7 @@ int main( int argc, char *argv[] )
 
                     line_counter++; //increment line counter so we know what is next, will only increment if has data
                 }
+
             }
         }
 
@@ -277,17 +280,55 @@ int main( int argc, char *argv[] )
         cout << endl;
     }
 
+    string left, right;
+    string key = hexToBin("357", key_size); //the master key
+    //Demonstration of a single round
+    for (unsigned int i = 0; i < num_rounds; ++i){}
+    for (unsigned int i = 0; i < 1; ++i)
+    {
+        string plain = "10010101";
+        //Initial Permutation, Split
+        string init_permutation = permute(plain, init_permute_vec);
+        left = splitLeft(init_permutation);
+        right = splitRight(init_permutation);
+        cout << "Plain: " + plain << endl;
+        cout << "Key: " + key << endl;
+        cout << "Initital Permutation: " + init_permutation << endl;
+        cout << "Left Split: " + left << endl;
+        cout << "Right Split: " + right << endl;
 
+        //Generating the Key
+        //Apply Permutation 1
+        string round_key = permute(key, permute_choice_pc1_vec);
+        string left_round = splitLeft(round_key);
+        string right_round = splitRight(round_key);
+        cout << "Round Key: " + round_key << endl;
+        cout << "Left Round: " + left_round << endl;
+        cout << "Right Round: " + right_round << endl;
+        //Apply rotation schedule to both sides, cumulatively
+        for (unsigned int j = 0; j < i; ++j)
+        {
+            left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
+            right = cycleLeft(right_round, rotation_schedule_vec[j]);
+        }
+        cout << "Cycled Left Round: " + left_round << endl;
+        cout << "Cycled Right Round: " + right_round << endl;
+        round_key = left_round + right_round;
+        cout << "New Round Key: " + round_key << endl;
+        //Apply permutation 2
+        round_key = permute(round_key, permute_choice_pc2_vec);
+        cout << "Final Round Key: " + round_key << endl;
+        //Round Key is now fully generated
 
+        //L1 = R0
+        left = right;
+        //Starting on F:
+        //Apply Expansion Permutation to R0
+        right = permute(right, expan_permute_vec);
+        cout << "Expansion Permutation: " + right << endl;
+        string xi = XOR(right, round_key);
+        cout << "XOR with Round Key: " + xi << endl;
+    }
 
     return 0;
 }
-
-
-
-
-
-
-
-
-
