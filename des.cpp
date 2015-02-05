@@ -67,7 +67,7 @@ std::string hexToBin(std::string hex_input, unsigned int size)
 
 std::string decToBin(int decimal_input, unsigned int size)
 {
-	bitset<256> binary_output(decimal_input);
+	std::bitset<256> binary_output(decimal_input);
     std::string binary_string = binary_output.to_string();
     return binary_string.substr(binary_string.size() - size, std::string::npos);
 }
@@ -83,4 +83,9 @@ int hex_char_to_decimal(std::string c)
 	int numb;
 	std::istringstream ( c ) >> numb;
 	return numb;
+}
+
+int binToDec(std::string binary_input)
+{
+	return (int)std::bitset<64>(binary_input).to_ullong();
 }

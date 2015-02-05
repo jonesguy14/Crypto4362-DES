@@ -298,6 +298,7 @@ int main( int argc, char *argv[] )
         cout << "Expansion Permutation: " + right << endl;
         string xi = XOR(right, round_key);
         cout << "XOR with Round Key: " + xi << endl;
+        cout << binToDec("5");
     }
     return 0;
 }
