@@ -38,7 +38,7 @@ vector< vector< vector<int> > > make_sboxes(vector<string> lines, int num_sboxes
 
 int main( int argc, char *argv[] )
 {   
-    bool encrypt = false; //if want to encrypt input
+    bool encrypt = true; //if want to encrypt input. The default!
     bool decrypt = false; //if want to decrypt input
     bool showstp = false; //if want to print intermediate steps
     bool hex_rep = false; //if want hexadecimal instead of binary
@@ -69,6 +69,7 @@ int main( int argc, char *argv[] )
         }
         else if ( arg_str == "-d" ) {
             decrypt = true;
+			encrypt = false;
         }
         else if ( arg_str == "-s" ) {
             showstp = true;
@@ -318,9 +319,8 @@ int main( int argc, char *argv[] )
 		}
 
     string left, right;
-    cout << "\nKey read from file: " << key_str_from_file << endl;
     string key = hexToBin( key_str_from_file , key_size); //the master key
-    string plain = "100101";
+    string plain = "11110101";
     //Initial Permutation, Split
     string init_permutation = permute(plain, init_permute_vec);
     left = splitLeft(init_permutation); //L0
@@ -339,6 +339,7 @@ int main( int argc, char *argv[] )
 	string key_permute = permute(key, permute_choice_pc1_vec);
 	string left_round = splitLeft(key_permute);
 	string right_round = splitRight(key_permute);
+	//Generate for each round
 	for (unsigned int i = 0; i < num_rounds; ++i)
 	{
 		//Apply rotation schedule to both sides, cumulatively
@@ -371,7 +372,9 @@ int main( int argc, char *argv[] )
 		if ( showstp ) {
 			*desr_out << "Round: " << i + 1 << endl;
 		}
-		string round_key = key_vector[i];
+		string round_key = "";
+		if ( decrypt ) round_key = key_vector[num_rounds - i - 1];
+		if ( encrypt ) round_key = key_vector[i];
 		if ( showstp ) {
 			*desr_out << "Round Key: " << round_key << endl;
 		}
