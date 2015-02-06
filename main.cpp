@@ -277,14 +277,20 @@ int main( int argc, char *argv[] )
         cout << endl;
     }
     vector<string> init_permute_vec_inverse = inversePermute(init_permute_vec);
-    string test = "ayy sdfdsfsdo lmao";
+		cout << "\nInit permutation inverse: ";
+    for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
+        cout << init_permute_vec_inverse[i] << " ";
+    }
+		cout << endl;
+    string test = "1010110101";
     test = permute(test, init_permute_vec);
+		cout << test << endl;
     test = permute(test, init_permute_vec_inverse);
     cout << test << endl;
 
     string left, right;
     string key = hexToBin("357", key_size); //the master key
-    string plain = "10010101";
+    string plain = "100101";
     //Initial Permutation, Split
     string init_permutation = permute(plain, init_permute_vec);
     left = splitLeft(init_permutation); //L0
@@ -296,6 +302,7 @@ int main( int argc, char *argv[] )
     cout << "Right Split: " + right << endl;
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
+		    cout << "Round: " << i + 1 << endl;
         //Generating the Key
         //Apply Permutation 1
         string round_key = permute(key, permute_choice_pc1_vec);
@@ -305,10 +312,10 @@ int main( int argc, char *argv[] )
         cout << "Left Round: " + left_round << endl;
         cout << "Right Round: " + right_round << endl;
         //Apply rotation schedule to both sides, cumulatively
-        for (unsigned int j = 0; j < i; ++j)
+        for (unsigned int j = 0; j < i + 1; ++j)
         {
             left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
-            right = cycleLeft(right_round, rotation_schedule_vec[j]);
+            right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
         }
         cout << "Cycled Left Round: " + left_round << endl;
         cout << "Cycled Right Round: " + right_round << endl;
@@ -357,20 +364,21 @@ int main( int argc, char *argv[] )
 			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
 		}
 		cout << "Sbox result: " << yi << endl;
-        //The concatenated output from the T S-boxes, Yi, is then transposed using the P-box permutation
-        string ui = permute(yi, pbox_trans_perm_vec);
-        // Ui, which is then XORed with L0 to form R1.
-        string temp = right; //save value of R0
-        right = XOR(left, ui);
-        //L1 = R0
-        left = temp;
-        cout << "Left: " + left << endl;
-        cout << "Right: " + right << endl;
+    //The concatenated output from the T S-boxes, Yi, is then transposed using the P-box permutation
+    string ui = permute(yi, pbox_trans_perm_vec);
+    // Ui, which is then XORed with L0 to form R1.
+    string temp = right; //save value of R0
+    right = XOR(left, ui);
+    //L1 = R0
+    left = temp;
+    cout << "Left: " + left << endl;
+    cout << "Right: " + right << endl;
     }
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
     left = temp;
     string final = permute(left + right, init_permute_vec_inverse);
+		cout << final << endl;
     return 0;
 }

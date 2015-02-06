@@ -93,13 +93,13 @@ unsigned long long binToDec(std::string binary_input)
 std::vector<std::string> inversePermute(std::vector<std::string> permutation)
 {
 	std::vector<std::string> inverse;
-	for (unsigned int i = 1; i < permutation.size(); ++i)
+	for (unsigned int i = 1; i < permutation.size() + 1; ++i)
 	{
 		for (unsigned int j = 0; j < permutation.size(); ++j)
 		{
 			if (permutation[j] == std::to_string(i))
 			{
-				inverse.push_back(permutation[j]);
+				inverse.push_back(std::to_string(j+1));
 			}
 		}
 	}
