@@ -38,7 +38,7 @@ vector< vector< vector<int> > > make_sboxes(vector<string> lines, int num_sboxes
 
 int main( int argc, char *argv[] )
 {   
-    bool encrypt = false; //if want to encrypt input
+    bool encrypt = true; //if want to encrypt input. The default!
     bool decrypt = false; //if want to decrypt input
     bool showstp = false; //if want to print intermediate steps
     bool hex_rep = false; //if want hexadecimal instead of binary
@@ -69,6 +69,7 @@ int main( int argc, char *argv[] )
         }
         else if ( arg_str == "-d" ) {
             decrypt = true;
+			encrypt = false;
         }
         else if ( arg_str == "-s" ) {
             showstp = true;
@@ -318,13 +319,53 @@ int main( int argc, char *argv[] )
 		}
 
     string left, right;
-    cout << "\nKey read from file: " << key_str_from_file << endl;
     string key = hexToBin( key_str_from_file , key_size); //the master key
-    string plain = "100101";
-    //Initial Permutation, Split
-    string init_permutation = permute(plain, init_permute_vec);
-    left = splitLeft(init_permutation); //L0
-    right = splitRight(init_permutation); //R0
+	//Generating the Keys
+	vector<string> key_vector;
+	//Apply Permutation 1 and split.
+	string key_permute = permute(key, permute_choice_pc1_vec);
+	string left_round = splitLeft(key_permute);
+	string right_round = splitRight(key_permute);
+	//Generate for each round
+	for (unsigned int i = 0; i < num_rounds; ++i)
+	{
+		//Apply rotation schedule to both sides, cumulatively
+		for (unsigned int j = 0; j < i + 1; ++j)
+		{
+		  left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
+		  right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
+		}
+
+		string round_key = left_round + right_round;
+		//Apply permutation 2
+		round_key = permute(round_key, permute_choice_pc2_vec);
+		//Final round key for that round is generated
+		key_vector.push_back(round_key);
+	}
+    //Round Keys are now fully generated
+	int curr_round = 0;
+
+	while(curr_round < num_rounds){
+		string plain;
+		streampos size;
+		char * memblock;
+	
+		ifstream file ("input.bin", ios::in|ios::binary|ios::ate);
+		if(file.is_open()){
+			
+			size = file.tellg();
+			memblock = new char[size];
+			file.seekg(0, ios::beg);
+			curr_round++;
+			file.read(memblock, size);
+			file.close();
+			plain = string(memblock);
+			delete[] memblock;
+		}
+		string init_permutation = permute(plain, init_permute_vec);
+		left = splitLeft(init_permutation); //L0
+		right = splitRight(init_permutation); //R0
+
     
     if ( showstp ) {
 		if ( hex_rep ) {
@@ -341,72 +382,18 @@ int main( int argc, char *argv[] )
 			*desr_out << "Right Split: " + right << endl;
 		}
 	}
-	/*
-	int block;
-    ifstream input("input.bin");
-    input.open("input.bin", ios::binary | ios::in);
-    
-    while(!input.eof()){
-		input.read(&block, 1);
-		stringstream ss;
-		ss << a;
-		plain = ss.str();*/
-		
+
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
-        //Generating the Key
-        //Apply Permutation 1
-        string round_key = permute(key, permute_choice_pc1_vec);
-        string left_round = splitLeft(round_key);
-        string right_round = splitRight(round_key);
-        if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "Round: " << i + 1 << endl;
-				*desr_out << "Round Key: " + binToHex(round_key) << endl;
-				*desr_out << "Left Round: " + binToHex(left_round) << endl;
-				*desr_out << "Right Round: " + binToHex(right_round) << endl;
-			} else {
-				*desr_out << "Round: " << i + 1 << endl;
-				*desr_out << "Round Key: " + round_key << endl;
-				*desr_out << "Left Round: " + left_round << endl;
-				*desr_out << "Right Round: " + right_round << endl;
-			}
+		if ( showstp ) {
+			*desr_out << "Round: " << i + 1 << endl;
 		}
-        //Apply rotation schedule to both sides, cumulatively
-        for (unsigned int j = 0; j < i + 1; ++j)
-        {
-            left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
-            right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
-        }
-        
-        if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "Cycled Left Round: " + binToHex(left_round) << endl;
-				*desr_out << "Cycled Right Round: " + binToHex(right_round) << endl;
-			} else {
-				*desr_out << "Cycled Left Round: " + binToHex(left_round) << endl;
-				*desr_out << "Cycled Right Round: " + binToHex(right_round) << endl;
-			}
+		string round_key = "";
+		if ( decrypt ) round_key = key_vector[num_rounds - i - 1];
+		if ( encrypt ) round_key = key_vector[i];
+		if ( showstp ) {
+			*desr_out << "Round Key: " << round_key << endl;
 		}
-		
-        round_key = left_round + right_round;
-        if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "New Round Key: " + binToHex(round_key) << endl;
-			} else {
-				*desr_out << "New Round Key: " + round_key << endl;
-			}
-		}
-        //Apply permutation 2
-        round_key = permute(round_key, permute_choice_pc2_vec);
-        if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "Final Round Key: " + binToHex(round_key) << endl;
-			} else {
-				*desr_out << "Final Round Key: " + round_key << endl;
-			}
-		}
-        //Round Key is now fully generated
 
         //Starting on F:
         //Apply Expansion Permutation to R0
@@ -471,7 +458,7 @@ int main( int argc, char *argv[] )
 			}
 		}
     } // end of rounds loop
-//}
+}
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
