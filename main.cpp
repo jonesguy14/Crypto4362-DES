@@ -376,7 +376,7 @@ int main( int argc, char *argv[] )
     unsigned int chars_retrieved = 0;
     while( chars_retrieved < data.size() ) {
         string plain;
-        if ( !hexrep )
+        if ( !hex_rep )
         {
             plain = data.substr(chars_retrieved, block_size);
             while ( plain.size() < block_size )
