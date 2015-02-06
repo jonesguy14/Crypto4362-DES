@@ -229,7 +229,7 @@ int main( int argc, char *argv[] )
         sboxes = make_sboxes( sbox_lines, num_sboxes, sbox_height, sbox_width );
     }
 
-	if ( showstp == true ) {
+	if ( showstp ) {
 		//Printing to make sure parsing was correct
 		cout << "Block Size: " << block_size << endl;
 		cout << "Key Size: " << key_size << endl;
@@ -283,16 +283,12 @@ int main( int argc, char *argv[] )
 	}
 	
     vector<string> init_permute_vec_inverse = inversePermute(init_permute_vec);
-		cout << "\nInit permutation inverse: ";
-    for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
-        cout << init_permute_vec_inverse[i] << " ";
-    }
-		cout << endl;
-    string test = "1010110101";
-    test = permute(test, init_permute_vec);
-		cout << test << endl;
-    test = permute(test, init_permute_vec_inverse);
-    cout << test << endl;
+		if ( showstp ) {
+			cout << "\nInit permutation inverse: ";
+		  for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
+		      cout << init_permute_vec_inverse[i] << " ";
+		  }
+		}
 
     string left, right;
     string key = hexToBin("357", key_size); //the master key
@@ -302,7 +298,7 @@ int main( int argc, char *argv[] )
     left = splitLeft(init_permutation); //L0
     right = splitRight(init_permutation); //R0
     
-    if ( showstp == true ) {
+    if ( showstp ) {
 		cout << "Plain: " + plain << endl;
 		cout << "Key: " + key << endl;
 		cout << "Initital Permutation: " + init_permutation << endl;
@@ -312,13 +308,13 @@ int main( int argc, char *argv[] )
 	
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
-		    cout << "Round: " << i + 1 << endl;
         //Generating the Key
         //Apply Permutation 1
         string round_key = permute(key, permute_choice_pc1_vec);
         string left_round = splitLeft(round_key);
         string right_round = splitRight(round_key);
-        if ( showstp == true ) {
+        if ( showstp ) {
+			cout << "Round: " << i + 1 << endl;
 			cout << "Round Key: " + round_key << endl;
 			cout << "Left Round: " + left_round << endl;
 			cout << "Right Round: " + right_round << endl;
@@ -330,18 +326,18 @@ int main( int argc, char *argv[] )
             right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
         }
         
-        if ( showstp == true ) {
+        if ( showstp ) {
 			cout << "Cycled Left Round: " + left_round << endl;
 			cout << "Cycled Right Round: " + right_round << endl;
 		}
 		
         round_key = left_round + right_round;
-        if ( showstp == true ) {
+        if ( showstp ) {
 			cout << "New Round Key: " + round_key << endl;
 		}
         //Apply permutation 2
         round_key = permute(round_key, permute_choice_pc2_vec);
-        if ( showstp == true ) {
+        if ( showstp ) {
 			cout << "Final Round Key: " + round_key << endl;
 		}
         //Round Key is now fully generated
@@ -350,7 +346,7 @@ int main( int argc, char *argv[] )
         //Apply Expansion Permutation to R0
         string right_exp = permute(right, expan_permute_vec);
         string xi = XOR(right_exp, round_key);
-        if ( showstp == true ) {
+        if ( showstp ) {
 			cout << "Expansion Permutation: " + right_exp << endl;
 			cout << "XOR with Round Key: " + xi << endl;
 		}
@@ -380,7 +376,7 @@ int main( int argc, char *argv[] )
 			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
 		}
 		
-		if ( showstp == true ) {
+		if ( showstp ) {
 			cout << "Sbox result: " << yi << endl;
 		}
         //The concatenated output from the T S-boxes, Yi, is then transposed using the P-box permutation
@@ -390,7 +386,7 @@ int main( int argc, char *argv[] )
         right = XOR(left, ui);
         //L1 = R0
         left = temp;
-        if ( showstp == true ) {
+        if ( showstp ) {
 			cout << "Left: " + left << endl;
 			cout << "Right: " + right << endl;
 		}
@@ -400,6 +396,6 @@ int main( int argc, char *argv[] )
     right = left;
     left = temp;
     string final = permute(left + right, init_permute_vec_inverse);
-		cout << final << endl;
+		cout << "Result: " + final << endl;
     return 0;
 }
