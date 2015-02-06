@@ -43,8 +43,8 @@ int main( int argc, char *argv[] )
     bool showstp = false; //if want to print intermediate steps
     bool hex_rep = false; //if want hexadecimal instead of binary
 
-    string input_file_str  = "ptxt.bin";
-    string output_file_str = "ctxt.bin";
+    string input_file_str  = "ptxt.txt";
+    string output_file_str = "ctxt.txt";
     string param_file_str  = "params.txt";
     string key_str_hex     = "key.txt";
     
@@ -113,15 +113,15 @@ int main( int argc, char *argv[] )
     }
     
     if ( setNewOut == false ) { //no -o flag
-        if ( encrypt ) output_file_str = "ctxt.bin";
-        if ( decrypt ) output_file_str = "ptxt.bin";
+        if ( encrypt ) output_file_str = "ctxt.txt";
+        if ( decrypt ) output_file_str = "ptxt.txt";
 		fout.open( output_file_str.c_str() );
 		desr_out = &fout;
 	}
 
     if ( setNewIn == false ) { //no -i flag
-        if ( encrypt ) input_file_str = "ptxt.bin";
-        if ( decrypt ) input_file_str = "ctxt.bin";
+        if ( encrypt ) input_file_str = "ptxt.txt";
+        if ( decrypt ) input_file_str = "ctxt.txt";
     }
 	
 	if ( setNewKey == false ) { //use default key.txt
@@ -328,7 +328,7 @@ int main( int argc, char *argv[] )
 		}
 
     string left, right;
-    string key = hexToBin( key_str_from_file , key_size); //the master key
+    string key = hexToBin( key_str_from_file , key_size ); //the master key
 	//Generating the Keys
 	vector<string> key_vector;
 	//Apply Permutation 1 and split.
@@ -339,8 +339,8 @@ int main( int argc, char *argv[] )
 	for (unsigned int i = 0; i < num_rounds; ++i)
 	{
 		//Apply rotation schedule to both sides, cumulatively
-    	  left_round = cycleLeft(left_round, rotation_schedule_vec[i]);
-    	  right_round = cycleLeft(right_round, rotation_schedule_vec[i]);
+    	left_round = cycleLeft(left_round, rotation_schedule_vec[i]);
+    	right_round = cycleLeft(right_round, rotation_schedule_vec[i]);
 
 		string round_key = left_round + right_round;
 		//Apply permutation 2
@@ -349,135 +349,144 @@ int main( int argc, char *argv[] )
 		key_vector.push_back(round_key);
 	}
     //Round Keys are now fully generated
-    int curr_round = 0;
-    string final_output = "";
-    while(curr_round < num_rounds){
-        string plain;
-        streampos size;
-        char * memblock;
-    
-        ifstream file (input_file_str, ios::in|ios::binary|ios::ate);
+    string data;
+    if ( !using_stdin )
+    {
+        ifstream file (input_file_str);
         if(file.is_open()){
-            
-            size = file.tellg();
-            memblock = new char[size];
-            file.seekg(0, ios::beg);
-            curr_round++;
-            file.read(memblock, size);
+            string line;
+            while ( getline(file, line) )
+            {
+                data += line;
+            }
             file.close();
-            plain = string(memblock);
-            delete[] memblock;
         }
+    }
+    else
+    {
+        string line;
+        while ( getline(cin, line) )
+        {
+            data += line;
+        }
+    }
+    unsigned int chars_retrieved = 0;
+    while( chars_retrieved < data.size() ) {
+        string plain = data.substr(chars_retrieved, block_size);
+        while ( plain.size() < block_size )
+        {
+            plain += "0";
+        }
+        chars_retrieved += block_size;
         string init_permutation = permute(plain, init_permute_vec);
         left = splitLeft(init_permutation); //L0
         right = splitRight(init_permutation); //R0
-
-    string plain = input_file_str;
-    string init_permutation = permute(plain, init_permute_vec);
-    left = splitLeft(init_permutation); //L0
-    right = splitRight(init_permutation); //R0
-    if ( showstp ) {
-        *desr_out << endl;
-		if ( hex_rep ) {
-			*desr_out << "Initial Block: " + binToHex(plain) << endl;
-			*desr_out << "Key: " + binToHex(key) << endl;
-			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
-			*desr_out << "Left Split: " + binToHex(left) << endl;
-			*desr_out << "Right Split: " + binToHex(right) << endl;
-		} else {
-			*desr_out << "Initial Block: " + plain << endl;
-			*desr_out << "Key: " + key << endl;
-			*desr_out << "Initital Permutation: " + init_permutation << endl;
-			*desr_out << "Left Split: " + left << endl;
-			*desr_out << "Right Split: " + right << endl;
-		}
-	}
-
-    for (unsigned int i = 0; i < num_rounds; ++i) //begin the rounds
-    {
-		if ( showstp ) {
-			*desr_out << "Round: " << i + 1 << endl;
-		}
-		string round_key = "";
-		if ( decrypt ) round_key = key_vector[num_rounds - i - 1];
-		if ( encrypt ) round_key = key_vector[i];
-		if ( showstp ) {
-			*desr_out << "Round Key: " << round_key << endl;
-		}
-
-        //Starting on F:
-        //Apply Expansion Permutation to R0
-        string right_exp = permute(right, expan_permute_vec);
-        string xi = XOR(right_exp, round_key);
         if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "Expansion Permutation: " + binToHex(right_exp) << endl;
-				*desr_out << "XOR with Round Key: " + binToHex(xi) << endl;
-			} else {
-				*desr_out << "Expansion Permutation: " + right_exp << endl;
-				*desr_out << "XOR with Round Key: " + xi << endl;
-			}
-		}
-        //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
-        //concat *desr_outputs from s-boxes
-        string yi = "";
-        for ( int i = 0; i < num_sboxes; ++i) { //Go through sboxes to find results
-			string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
-			
-			//find row selection bits
-			string rowbitstr = "";
-			for ( int r = 0; r < row_selection_vec.size(); ++r) { //find each bit in the row select vector
-				rowbitstr += xi_subset[ atoi( row_selection_vec[r].c_str() ) - 1 ];
-			}
-			int rowbitdec = binToDec( rowbitstr );
-			
-			//find column selection bits
-			string colbitstr = "";
-			for ( int c = 0; c < col_selection_vec.size(); ++c) { //find each bit in the col select vector
-				colbitstr += xi_subset[ atoi( col_selection_vec[c].c_str() ) - 1 ];
-			}
-			int colbitdec = binToDec( colbitstr );
-			
-			//size of *desr_output of sbox is the number of bits needed to represent all the entries
-			int output_size = log( sbox_width ) / log( 2 );
+            *desr_out << "------------------" << endl;
+    		if ( hex_rep ) {
+    			*desr_out << "Initial Block: " + binToHex(plain) << endl;
+    			*desr_out << "Key: " + binToHex(key) << endl;
+    			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
+    			*desr_out << "Left Split: " + binToHex(left) << endl;
+    			*desr_out << "Right Split: " + binToHex(right) << endl;
+    		} else {
+    			*desr_out << "Initial Block: " + plain << endl;
+    			*desr_out << "Key: " + key << endl;
+    			*desr_out << "Initital Permutation: " + init_permutation << endl;
+    			*desr_out << "Left Split: " + left << endl;
+    			*desr_out << "Right Split: " + right << endl;
+    		}
+    	}
 
-			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
-		}
-		
-		if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "Sbox result: " << binToHex(yi) << endl;
-			} else {
-				*desr_out << "Sbox result: " << yi << endl;
-			}
-		}
-        //The concatenated *desr_output from the T S-boxes, Yi, is then transposed using the P-box permutation
-        string ui = permute(yi, pbox_trans_perm_vec);
-        // Ui, which is then XORed with L0 to form R1.
-        string temp = right; //save value of R0
-        right = XOR(left, ui);
-        //L1 = R0
+        for (unsigned int i = 0; i < num_rounds; ++i) //begin the rounds
+        {
+    		if ( showstp ) {
+    			*desr_out << "Round: " << i + 1 << endl;
+    		}
+    		string round_key = "";
+    		if ( decrypt ) round_key = key_vector[num_rounds - i - 1];
+    		if ( encrypt ) round_key = key_vector[i];
+    		if ( showstp ) {
+                if ( hex_rep ) {
+                    *desr_out << "Round Key: " << binToHex(round_key) << endl;
+                } else {
+                    *desr_out << "Round Key: " << round_key << endl;
+                }
+    		}
+
+            //Starting on F:
+            //Apply Expansion Permutation to R0
+            string right_exp = permute(right, expan_permute_vec);
+            string xi = XOR(right_exp, round_key);
+            if ( showstp ) {
+    			if ( hex_rep ) {
+    				*desr_out << "Expansion Permutation: " + binToHex(right_exp) << endl;
+    				*desr_out << "XOR with Round Key: " + binToHex(xi) << endl;
+    			} else {
+    				*desr_out << "Expansion Permutation: " + right_exp << endl;
+    				*desr_out << "XOR with Round Key: " + xi << endl;
+    			}
+    		}
+            //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
+            //concat *desr_outputs from s-boxes
+            string yi = "";
+            for ( int i = 0; i < num_sboxes; ++i) { //Go through sboxes to find results
+    			string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
+    			
+    			//find row selection bits
+    			string rowbitstr = "";
+    			for ( int r = 0; r < row_selection_vec.size(); ++r) { //find each bit in the row select vector
+    				rowbitstr += xi_subset[ atoi( row_selection_vec[r].c_str() ) - 1 ];
+    			}
+    			int rowbitdec = binToDec( rowbitstr );
+    			
+    			//find column selection bits
+    			string colbitstr = "";
+    			for ( int c = 0; c < col_selection_vec.size(); ++c) { //find each bit in the col select vector
+    				colbitstr += xi_subset[ atoi( col_selection_vec[c].c_str() ) - 1 ];
+    			}
+    			int colbitdec = binToDec( colbitstr );
+    			
+    			//size of *desr_output of sbox is the number of bits needed to represent all the entries
+    			int output_size = log( sbox_width ) / log( 2 );
+
+    			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
+    		}
+    		
+    		if ( showstp ) {
+    			if ( hex_rep ) {
+    				*desr_out << "Sbox result: " << binToHex(yi) << endl;
+    			} else {
+    				*desr_out << "Sbox result: " << yi << endl;
+    			}
+    		}
+            //The concatenated *desr_output from the T S-boxes, Yi, is then transposed using the P-box permutation
+            string ui = permute(yi, pbox_trans_perm_vec);
+            // Ui, which is then XORed with L0 to form R1.
+            string temp = right; //save value of R0
+            right = XOR(left, ui);
+            //L1 = R0
+            left = temp;
+            if ( showstp ) {
+    			if ( hex_rep ) {
+    				*desr_out << "Left: " + binToHex(left) << endl;
+    				*desr_out << "Right: " + binToHex(right) << endl;
+    			} else {
+    				*desr_out << "Left: " + left << endl;
+    				*desr_out << "Right: " + right << endl;
+    			}
+    		}
+        } // end of rounds loop
+        //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
+        string temp = right;
+        right = left;
         left = temp;
-        if ( showstp ) {
-			if ( hex_rep ) {
-				*desr_out << "Left: " + binToHex(left) << endl;
-				*desr_out << "Right: " + binToHex(right) << endl;
-			} else {
-				*desr_out << "Left: " + left << endl;
-				*desr_out << "Right: " + right << endl;
-			}
-		}
-    } // end of rounds loop
-    //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
-    string temp = right;
-    right = left;
-    left = temp;
-    string final = permute(left + right, init_permute_vec_inverse);
-    if ( hex_rep ) {
-		*desr_out << binToHex(final) << endl;
-	} else {
-		*desr_out << final << endl;
-	}
-}//end while loop
+        string final = permute(left + right, init_permute_vec_inverse);
+        if ( hex_rep ) {
+    		*desr_out << binToHex(final);
+    	} else {
+    		*desr_out << final;
+    	}
+    }//end get blocks
     return 0;
 }

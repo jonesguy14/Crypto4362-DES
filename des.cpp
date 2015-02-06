@@ -97,9 +97,20 @@ std::vector<std::string> inversePermute(std::vector<std::string> permutation)
 	{
 		for (unsigned int j = 0; j < permutation.size(); ++j)
 		{
-			if (permutation[j] == std::to_string(i))
+
+			std::ostringstream convert;   // stream used for the conversion
+
+			convert << i;      // insert the textual representation of 'Number' in the characters in the stream
+
+			std::string result = convert.str(); // set 'Result' to the contents of the stream
+			if (permutation[j] == result)
 			{
-				inverse.push_back(std::to_string(j+1));
+				std::ostringstream convert2;   // stream used for the conversion
+
+				convert2 << j + 1;      // insert the textual representation of 'Number' in the characters in the stream
+
+				std::string result2 = convert2.str(); // set 'Result' to the contents of the stream
+				inverse.push_back(result2);
 			}
 		}
 	}
