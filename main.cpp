@@ -329,6 +329,38 @@ int main( int argc, char *argv[] )
         string xi = XOR(right, round_key);
         cout << "XOR with Round Key: " + xi << endl;
         //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
+        
+        string yi;
+        for ( int i = 0; i < num_sboxes; ++i) {
+			//cout << "sbox #" << i << endl;
+			string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
+			//cout << "Xi subset=" << xi_subset << endl;
+			
+			//find row selection bits
+			string rowbitstr = "";
+			for ( int r = 0; r < row_selection_vec.size(); ++r) {
+				rowbitstr += xi_subset[ atoi( row_selection_vec[r].c_str() ) - 1 ];
+			}
+			//cout << "binRow=" << rowbitstr << endl;
+			int rowbitdec = binToDec( rowbitstr );
+			//cout << "Row=" << rowbitdec << endl;
+			
+			//find column selection bits
+			string colbitstr = "";
+			for ( int c = 0; c < col_selection_vec.size(); ++c) {
+				colbitstr += xi_subset[ atoi( col_selection_vec[c].c_str() ) - 1 ];
+			}
+			//cout << "binCol=" << colbitstr << endl;
+			int colbitdec = binToDec( colbitstr );
+			//cout << "Col=" << colbitdec << endl;
+			
+			int output_size = log( sbox_height * sbox_width ) / log( 2 );
+			
+			//cout << "intres=" << sboxes[i][rowbitdec][colbitdec] << endl;
+			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
+		}
+		cout << "Sbox result: " << yi << endl;
+        
     }
 
     return 0;
