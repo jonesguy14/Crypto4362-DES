@@ -95,9 +95,6 @@ int main( int argc, char *argv[] )
             param_file_str = arg_str.substr(2, arg_str.length() - 2); //get str after '-p'
         }
     }
-
-    cout << "Done with flags" << endl;
-
     int block_size, key_size, eff_key_size, rnd_key_size, num_rounds, num_sboxes;
     vector<string>    permute_choice_pc1_vec;
     vector<string>    permute_choice_pc2_vec;
@@ -279,24 +276,26 @@ int main( int argc, char *argv[] )
         }
         cout << endl;
     }
+    vector<string> init_permute_vec_inverse = inversePermute(init_permute_vec);
+    string test = "ayy sdfdsfsdo lmao";
+    test = permute(test, init_permute_vec);
+    test = permute(test, init_permute_vec_inverse);
+    cout << test << endl;
 
     string left, right;
     string key = hexToBin("357", key_size); //the master key
-    for (unsigned int i = 0; i < num_rounds; ++i){}
-    //Demonstration of a single round
-    for (unsigned int i = 0; i < 1; ++i)
+    string plain = "10010101";
+    //Initial Permutation, Split
+    string init_permutation = permute(plain, init_permute_vec);
+    left = splitLeft(init_permutation); //L0
+    right = splitRight(init_permutation); //R0
+    cout << "Plain: " + plain << endl;
+    cout << "Key: " + key << endl;
+    cout << "Initital Permutation: " + init_permutation << endl;
+    cout << "Left Split: " + left << endl;
+    cout << "Right Split: " + right << endl;
+    for (unsigned int i = 0; i < num_rounds; ++i)
     {
-        string plain = "10010101";
-        //Initial Permutation, Split
-        string init_permutation = permute(plain, init_permute_vec);
-        left = splitLeft(init_permutation);
-        right = splitRight(init_permutation);
-        cout << "Plain: " + plain << endl;
-        cout << "Key: " + key << endl;
-        cout << "Initital Permutation: " + init_permutation << endl;
-        cout << "Left Split: " + left << endl;
-        cout << "Right Split: " + right << endl;
-
         //Generating the Key
         //Apply Permutation 1
         string round_key = permute(key, permute_choice_pc1_vec);
@@ -320,16 +319,14 @@ int main( int argc, char *argv[] )
         cout << "Final Round Key: " + round_key << endl;
         //Round Key is now fully generated
 
-        //L1 = R0
-        left = right;
         //Starting on F:
         //Apply Expansion Permutation to R0
-        right = permute(right, expan_permute_vec);
-        cout << "Expansion Permutation: " + right << endl;
-        string xi = XOR(right, round_key);
+        string right_exp = permute(right, expan_permute_vec);
+        cout << "Expansion Permutation: " + right_exp << endl;
+        string xi = XOR(right_exp, round_key);
         cout << "XOR with Round Key: " + xi << endl;
         //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
-        
+        //concat outputs from s-boxes
         string yi;
         for ( int i = 0; i < num_sboxes; ++i) {
 			//cout << "sbox #" << i << endl;
@@ -360,8 +357,20 @@ int main( int argc, char *argv[] )
 			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
 		}
 		cout << "Sbox result: " << yi << endl;
-        
+        //The concatenated output from the T S-boxes, Yi, is then transposed using the P-box permutation
+        string ui = permute(yi, pbox_trans_perm_vec);
+        // Ui, which is then XORed with L0 to form R1.
+        string temp = right; //save value of R0
+        right = XOR(left, ui);
+        //L1 = R0
+        left = temp;
+        cout << "Left: " + left << endl;
+        cout << "Right: " + right << endl;
     }
-
+    //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
+    string temp = right;
+    right = left;
+    left = temp;
+    string final = permute(left + right, init_permute_vec_inverse);
     return 0;
 }
