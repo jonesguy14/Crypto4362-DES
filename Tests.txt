@@ -2,7 +2,7 @@ Tests
 =======================================================================================
 Using params.txt with SDES settings, ensuring encryption and decryption are inverses
 =======================================================================================
-./a.out -s -o- -k375 -e //Encrypting 10110101 from ptxt.bin
+./proj1 -s -o- -k375 -e //Encrypting 10110101 from ptxt.bin
 Block Size: 8
 Key Size: 10
 Eff Key Size: 10
@@ -57,7 +57,7 @@ Left: 0010
 Right: 1111
 11101100
 
-./a.out -s -o- -k375 -d //Decrypting 11101100 from ctxt.bin
+./proj1 -s -o- -k375 -d //Decrypting 11101100 from ctxt.bin
 Block Size: 8
 Key Size: 10
 Eff Key Size: 10
@@ -114,8 +114,8 @@ Right: 0111
 =======================================================================================
 Testing flags and default values
 =======================================================================================
-./a.out -o- -e
+./proj1 -o- -e
 Result: 00010010 //key is read from key.txt, plain from ptxt.bin
 
-./a.out -ooutput.txt -e
+./proj1 -ooutput.txt -e
 //Nothing is displayed in stdout. output.txt has the information.

@@ -320,34 +320,34 @@ int main( int argc, char *argv[] )
 	}
 	
     vector<string> init_permute_vec_inverse = inversePermute(init_permute_vec);
-		if ( showstp ) {
-			*desr_out << "\nInit permutation inverse: ";
-		  for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
-		      *desr_out << init_permute_vec_inverse[i] << " ";
-		  }
-		}
+	if ( showstp ) {
+		*desr_out << "\nInit permutation inverse: ";
+	  for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
+	      *desr_out << init_permute_vec_inverse[i] << " ";
+	  }
+	}
 
     string left, right;
     string key = hexToBin( key_str_from_file , key_size ); //the master key
-	//Generating the Keys
-	vector<string> key_vector;
-	//Apply Permutation 1 and split.
-	string key_permute = permute(key, permute_choice_pc1_vec);
-	string left_round = splitLeft(key_permute);
-	string right_round = splitRight(key_permute);
-	//Generate for each round
-	for (unsigned int i = 0; i < num_rounds; ++i)
-	{
-		//Apply rotation schedule to both sides, cumulatively
+    //Generating the Keys
+    vector<string> key_vector;
+    //Apply Permutation 1 and split.
+    string key_permute = permute(key, permute_choice_pc1_vec);
+    string left_round = splitLeft(key_permute);
+    string right_round = splitRight(key_permute);
+    //Generate for each round
+    for (unsigned int i = 0; i < num_rounds; ++i)
+    {
+    	//Apply rotation schedule to both sides, cumulatively
     	left_round = cycleLeft(left_round, rotation_schedule_vec[i]);
     	right_round = cycleLeft(right_round, rotation_schedule_vec[i]);
 
-		string round_key = left_round + right_round;
-		//Apply permutation 2
-		round_key = permute(round_key, permute_choice_pc2_vec);
-		//Final round key for that round is generated
-		key_vector.push_back(round_key);
-	}
+    	string round_key = left_round + right_round;
+    	//Apply permutation 2
+    	round_key = permute(round_key, permute_choice_pc2_vec);
+    	//Final round key for that round is generated
+    	key_vector.push_back(round_key);
+    }
     //Round Keys are now fully generated
     string data;
     if ( !using_stdin )
@@ -404,7 +404,7 @@ int main( int argc, char *argv[] )
     			*desr_out << "Round: " << i + 1 << endl;
     		}
     		string round_key = "";
-    		if ( decrypt ) round_key = key_vector[num_rounds - i - 1];
+    		if ( decrypt ) round_key = key_vector[num_rounds - i - 1]; //Decrypt uses keys in reverse order
     		if ( encrypt ) round_key = key_vector[i];
     		if ( showstp ) {
                 if ( hex_rep ) {
