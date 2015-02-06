@@ -303,11 +303,33 @@ int main( int argc, char *argv[] )
 
     string left, right;
     string key = hexToBin("357", key_size); //the master key
-    string plain = "100101";
-    //Initial Permutation, Split
-    string init_permutation = permute(plain, init_permute_vec);
-    left = splitLeft(init_permutation); //L0
-    right = splitRight(init_permutation); //R0
+
+
+
+	int curr_round = 0;
+
+	while(curr_round < num_rounds){
+		string plain;
+		streampos size;
+		char * memblock;
+	
+		ifstream file ("input.bin", ios::in|ios::binary|ios::ate);
+		if(file.is_open()){
+			
+			size = file.tellg();
+			memblock = new char[size];
+			file.seekg(0, ios::beg);
+			curr_round++;
+			file.read(memblock, size);
+			file.close();
+			plain = string(memblock);
+			delete[] memblock;
+		}
+
+		//Initial Permutation, Split
+		string init_permutation = permute(plain, init_permute_vec);
+		left = splitLeft(init_permutation); //L0
+		right = splitRight(init_permutation); //R0
     
     if ( showstp ) {
 		*desr_out << "Plain: " + plain << endl;
@@ -317,16 +339,6 @@ int main( int argc, char *argv[] )
 		*desr_out << "Right Split: " + right << endl;
 	}
 	
-	int block;
-    ifstream input("input.bin");
-    input.open("input.bin", ios::binary | ios::in);
-    
-    while(!input.eof()){
-		input.read(&block, 1);
-		stringstream ss;
-		ss << a;
-		plain = ss.str();
-		
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
         //Generating the Key
