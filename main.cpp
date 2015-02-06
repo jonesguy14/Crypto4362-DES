@@ -101,14 +101,7 @@ int main( int argc, char *argv[] )
             //want to use key (in hex) from command line
             key_str_hex = arg_str.substr(2, arg_str.length() - 2); //get str after '-k'
             setNewKey = true;
-            string keyline;
-			ifstream key_file ( key_str_hex.c_str() );
-			if ( key_file.is_open() ) {
-				while ( key_file.good() ) {
-					getline( key_file, keyline );
-					key_str_from_file += keyline;
-				}
-			}  
+            key_str_from_file = key_str_hex;
         }
         else if ( arg_str.substr(0, 2) == "-p" ) {
             //want different param file name
