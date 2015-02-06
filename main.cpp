@@ -47,6 +47,9 @@ int main( int argc, char *argv[] )
     string output_file_str = "output.txt";
     string param_file_str  = "params.txt";
     string key_str_hex     = "key.txt";
+    
+    //ofstream desr_out;
+    
 
     bool using_stdin  = false; //if using stdin instead of input file
     bool using_stdout = false; //if using stdout instead of output file
@@ -84,7 +87,7 @@ int main( int argc, char *argv[] )
             if ( output_file_str == "-" ) {
                 //use stdout
                 using_stdout = true;
-            }
+            } 
         }
         else if ( arg_str.substr(0, 2) == "-k" ) {
             //want to use key (in hex) from command line
@@ -226,56 +229,59 @@ int main( int argc, char *argv[] )
         sboxes = make_sboxes( sbox_lines, num_sboxes, sbox_height, sbox_width );
     }
 
-    //Printing to make sure parsing was correct
-    cout << "Block Size: " << block_size << endl;
-    cout << "Key Size: " << key_size << endl;
-    cout << "Eff Key Size: " << eff_key_size << endl;
-    cout << "Round Key Size: " << rnd_key_size << endl;
-    cout << "Num Rounds: " << num_rounds << endl;
-    cout << "Perm1: ";
-    for (int i = 0; i < permute_choice_pc1_vec.size(); ++i) {
-        cout << permute_choice_pc1_vec[i] << " ";
-    }
-    cout << "\nPerm2: ";
-    for (int i = 0; i < permute_choice_pc2_vec.size(); ++i) {
-        cout << permute_choice_pc2_vec[i] << " ";
-    }
-    cout << "\nRotation: ";
-    for (int i = 0; i < rotation_schedule_vec.size(); ++i) {
-        cout << rotation_schedule_vec[i] << " ";
-    }
-    cout << "\nInit permutation: ";
-    for (int i = 0; i < init_permute_vec.size(); ++i) {
-        cout << init_permute_vec[i] << " ";
-    }
-    cout << "\nExpand permutation: ";
-    for (int i = 0; i < expan_permute_vec.size(); ++i) {
-        cout << expan_permute_vec[i] << " ";
-    }
-    cout << "\nP-Box transposition: ";
-    for (int i = 0; i < pbox_trans_perm_vec.size(); ++i) {
-        cout << pbox_trans_perm_vec[i] << " ";
-    }
-    cout << "\nNum SBoxes: " << num_sboxes << endl;
-    cout << "Row Select Bits: ";
-    for (int i = 0; i < row_selection_vec.size(); ++i) {
-        cout << row_selection_vec[i] << " ";
-    }
-    cout << "\nColumn Select Bits: ";
-    for (int i = 0; i < col_selection_vec.size(); ++i) {
-        cout << col_selection_vec[i] << " ";
-    }
+	if ( showstp == true ) {
+		//Printing to make sure parsing was correct
+		cout << "Block Size: " << block_size << endl;
+		cout << "Key Size: " << key_size << endl;
+		cout << "Eff Key Size: " << eff_key_size << endl;
+		cout << "Round Key Size: " << rnd_key_size << endl;
+		cout << "Num Rounds: " << num_rounds << endl;
+		cout << "Perm1: ";
+		for (int i = 0; i < permute_choice_pc1_vec.size(); ++i) {
+			cout << permute_choice_pc1_vec[i] << " ";
+		}
+		cout << "\nPerm2: ";
+		for (int i = 0; i < permute_choice_pc2_vec.size(); ++i) {
+			cout << permute_choice_pc2_vec[i] << " ";
+		}
+		cout << "\nRotation: ";
+		for (int i = 0; i < rotation_schedule_vec.size(); ++i) {
+			cout << rotation_schedule_vec[i] << " ";
+		}
+		cout << "\nInit permutation: ";
+		for (int i = 0; i < init_permute_vec.size(); ++i) {
+			cout << init_permute_vec[i] << " ";
+		}
+		cout << "\nExpand permutation: ";
+		for (int i = 0; i < expan_permute_vec.size(); ++i) {
+			cout << expan_permute_vec[i] << " ";
+		}
+		cout << "\nP-Box transposition: ";
+		for (int i = 0; i < pbox_trans_perm_vec.size(); ++i) {
+			cout << pbox_trans_perm_vec[i] << " ";
+		}
+		cout << "\nNum SBoxes: " << num_sboxes << endl;
+		cout << "Row Select Bits: ";
+		for (int i = 0; i < row_selection_vec.size(); ++i) {
+			cout << row_selection_vec[i] << " ";
+		}
+		cout << "\nColumn Select Bits: ";
+		for (int i = 0; i < col_selection_vec.size(); ++i) {
+			cout << col_selection_vec[i] << " ";
+		}
 
-    cout << "\nSboxes" << endl;
-    for (int i = 0; i < num_sboxes; ++i) {
-        for (int j = 0; j < sbox_height; ++j) {
-            for (int k = 0; k < sbox_width; ++k) {
-                cout << sboxes[i][j][k];
-            }
-            cout << endl;
-        }
-        cout << endl;
-    }
+		cout << "\nSboxes" << endl;
+		for (int i = 0; i < num_sboxes; ++i) {
+			for (int j = 0; j < sbox_height; ++j) {
+				for (int k = 0; k < sbox_width; ++k) {
+					cout << sboxes[i][j][k];
+				}
+				cout << endl;
+			}
+			cout << "---------" << endl;
+		}
+	}
+	
     vector<string> init_permute_vec_inverse = inversePermute(init_permute_vec);
 		cout << "\nInit permutation inverse: ";
     for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
@@ -295,11 +301,15 @@ int main( int argc, char *argv[] )
     string init_permutation = permute(plain, init_permute_vec);
     left = splitLeft(init_permutation); //L0
     right = splitRight(init_permutation); //R0
-    cout << "Plain: " + plain << endl;
-    cout << "Key: " + key << endl;
-    cout << "Initital Permutation: " + init_permutation << endl;
-    cout << "Left Split: " + left << endl;
-    cout << "Right Split: " + right << endl;
+    
+    if ( showstp == true ) {
+		cout << "Plain: " + plain << endl;
+		cout << "Key: " + key << endl;
+		cout << "Initital Permutation: " + init_permutation << endl;
+		cout << "Left Split: " + left << endl;
+		cout << "Right Split: " + right << endl;
+	}
+	
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
 		    cout << "Round: " << i + 1 << endl;
@@ -308,72 +318,83 @@ int main( int argc, char *argv[] )
         string round_key = permute(key, permute_choice_pc1_vec);
         string left_round = splitLeft(round_key);
         string right_round = splitRight(round_key);
-        cout << "Round Key: " + round_key << endl;
-        cout << "Left Round: " + left_round << endl;
-        cout << "Right Round: " + right_round << endl;
+        if ( showstp == true ) {
+			cout << "Round Key: " + round_key << endl;
+			cout << "Left Round: " + left_round << endl;
+			cout << "Right Round: " + right_round << endl;
+		}
         //Apply rotation schedule to both sides, cumulatively
         for (unsigned int j = 0; j < i + 1; ++j)
         {
             left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
             right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
         }
-        cout << "Cycled Left Round: " + left_round << endl;
-        cout << "Cycled Right Round: " + right_round << endl;
+        
+        if ( showstp == true ) {
+			cout << "Cycled Left Round: " + left_round << endl;
+			cout << "Cycled Right Round: " + right_round << endl;
+		}
+		
         round_key = left_round + right_round;
-        cout << "New Round Key: " + round_key << endl;
+        if ( showstp == true ) {
+			cout << "New Round Key: " + round_key << endl;
+		}
         //Apply permutation 2
         round_key = permute(round_key, permute_choice_pc2_vec);
-        cout << "Final Round Key: " + round_key << endl;
+        if ( showstp == true ) {
+			cout << "Final Round Key: " + round_key << endl;
+		}
         //Round Key is now fully generated
 
         //Starting on F:
         //Apply Expansion Permutation to R0
         string right_exp = permute(right, expan_permute_vec);
-        cout << "Expansion Permutation: " + right_exp << endl;
         string xi = XOR(right_exp, round_key);
-        cout << "XOR with Round Key: " + xi << endl;
+        if ( showstp == true ) {
+			cout << "Expansion Permutation: " + right_exp << endl;
+			cout << "XOR with Round Key: " + xi << endl;
+		}
         //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
         //concat outputs from s-boxes
         string yi;
-        for ( int i = 0; i < num_sboxes; ++i) {
-			//cout << "sbox #" << i << endl;
+        for ( int i = 0; i < num_sboxes; ++i) { //Go through sboxes to find results
 			string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
-			//cout << "Xi subset=" << xi_subset << endl;
 			
 			//find row selection bits
 			string rowbitstr = "";
-			for ( int r = 0; r < row_selection_vec.size(); ++r) {
+			for ( int r = 0; r < row_selection_vec.size(); ++r) { //find each bit in the row select vector
 				rowbitstr += xi_subset[ atoi( row_selection_vec[r].c_str() ) - 1 ];
 			}
-			//cout << "binRow=" << rowbitstr << endl;
 			int rowbitdec = binToDec( rowbitstr );
-			//cout << "Row=" << rowbitdec << endl;
 			
 			//find column selection bits
 			string colbitstr = "";
-			for ( int c = 0; c < col_selection_vec.size(); ++c) {
+			for ( int c = 0; c < col_selection_vec.size(); ++c) { //find each bit in the col select vector
 				colbitstr += xi_subset[ atoi( col_selection_vec[c].c_str() ) - 1 ];
 			}
-			//cout << "binCol=" << colbitstr << endl;
 			int colbitdec = binToDec( colbitstr );
-			//cout << "Col=" << colbitdec << endl;
 			
+			//size of output of sbox is the number of bits needed to represent all the entries
 			int output_size = log( sbox_height * sbox_width ) / log( 2 );
-			
-			//cout << "intres=" << sboxes[i][rowbitdec][colbitdec] << endl;
+
 			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
 		}
-		cout << "Sbox result: " << yi << endl;
-    //The concatenated output from the T S-boxes, Yi, is then transposed using the P-box permutation
-    string ui = permute(yi, pbox_trans_perm_vec);
-    // Ui, which is then XORed with L0 to form R1.
-    string temp = right; //save value of R0
-    right = XOR(left, ui);
-    //L1 = R0
-    left = temp;
-    cout << "Left: " + left << endl;
-    cout << "Right: " + right << endl;
-    }
+		
+		if ( showstp == true ) {
+			cout << "Sbox result: " << yi << endl;
+		}
+        //The concatenated output from the T S-boxes, Yi, is then transposed using the P-box permutation
+        string ui = permute(yi, pbox_trans_perm_vec);
+        // Ui, which is then XORed with L0 to form R1.
+        string temp = right; //save value of R0
+        right = XOR(left, ui);
+        //L1 = R0
+        left = temp;
+        if ( showstp == true ) {
+			cout << "Left: " + left << endl;
+			cout << "Right: " + right << endl;
+		}
+    } // end of rounds loop
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
