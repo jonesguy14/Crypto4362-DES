@@ -351,6 +351,7 @@ int main( int argc, char *argv[] )
     	key_vector.push_back(round_key);
     }
     //Round Keys are now fully generated
+    //Get data from files
     string data;
     if ( !using_stdin )
     {
@@ -374,12 +375,26 @@ int main( int argc, char *argv[] )
     }
     unsigned int chars_retrieved = 0;
     while( chars_retrieved < data.size() ) {
-        string plain = data.substr(chars_retrieved, block_size);
-        while ( plain.size() < block_size )
+        string plain;
+        if ( !hexrep )
         {
-            plain += "0";
+            plain = data.substr(chars_retrieved, block_size);
+            while ( plain.size() < block_size )
+            {
+                plain += "0";
+            }
+            chars_retrieved += block_size;
         }
-        chars_retrieved += block_size;
+        else
+        {
+            plain = data.substr(chars_retrieved, block_size/4);
+            while ( plain.size() < block_size/4 )
+            {
+                plain += "0";
+            }
+            plain = hexToBin(plain, block_size);
+            chars_retrieved += block_size/4;
+        }
         string init_permutation = permute(plain, init_permute_vec);
         left = splitLeft(init_permutation); //L0
         right = splitRight(init_permutation); //R0

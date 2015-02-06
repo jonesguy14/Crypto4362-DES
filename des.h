@@ -4,8 +4,12 @@
  * Known Limitations:
  * 		Maximum Key Size: 256 bits (binary), due to hexToBin bitset<MAX_KEY_SIZE>. Can be changed.
  * Brittleness:
- *		Requires users to have valid inputs
+ *		Requires users to have cohesive inputs; e.g., permutations need to select bits that exist,
+ *      SBox bits need to select permutations that exist 
  *      Requires SBox Specifications to be in Decimal
+ *      Permutations support hex from 0-F but any numbers larger than 0xF need to be in decimal.
+ * Deviations from Specs:
+ * 		Only accept ASCII-encoded binary and ASCII-encoded hex, not pure binary.
  */
 #include <vector>
 #include <string>
