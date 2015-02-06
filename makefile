@@ -1,7 +1,7 @@
-all: DES
+all: proj1
 
-DES: main.o des.o
-	g++ -std=c++11 main.o des.o -o DES
+proj1: main.o des.o
+	g++ -std=c++11 main.o des.o -o proj1
 
 main.o: main.cpp
 	g++ -c -std=c++11 main.cpp des.cpp
