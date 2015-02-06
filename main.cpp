@@ -320,18 +320,26 @@ int main( int argc, char *argv[] )
 
     string left, right;
     string key = hexToBin( key_str_from_file , key_size); //the master key
-    string plain = "11110101";
+    string plain = "00100000";
     //Initial Permutation, Split
     string init_permutation = permute(plain, init_permute_vec);
     left = splitLeft(init_permutation); //L0
     right = splitRight(init_permutation); //R0
     
     if ( showstp ) {
-		*desr_out << "Plain: " + plain << endl;
-		*desr_out << "Key: " + key << endl;
-		*desr_out << "Initital Permutation: " + init_permutation << endl;
-		*desr_out << "Left Split: " + left << endl;
-		*desr_out << "Right Split: " + right << endl;
+		if ( hex_rep ) {
+			*desr_out << "Plain: " + binToHex(plain) << endl;
+			*desr_out << "Key: " + binToHex(key) << endl;
+			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
+			*desr_out << "Left Split: " + binToHex(left) << endl;
+			*desr_out << "Right Split: " + binToHex(right) << endl;
+		} else {
+			*desr_out << "Plain: " + plain << endl;
+			*desr_out << "Key: " + key << endl;
+			*desr_out << "Initital Permutation: " + init_permutation << endl;
+			*desr_out << "Left Split: " + left << endl;
+			*desr_out << "Right Split: " + right << endl;
+		}
 	}
 	//Generating the Keys
 	vector<string> key_vector;
@@ -384,8 +392,13 @@ int main( int argc, char *argv[] )
         string right_exp = permute(right, expan_permute_vec);
         string xi = XOR(right_exp, round_key);
         if ( showstp ) {
-			*desr_out << "Expansion Permutation: " + right_exp << endl;
-			*desr_out << "XOR with Round Key: " + xi << endl;
+			if ( hex_rep ) {
+				*desr_out << "Expansion Permutation: " + binToHex(right_exp) << endl;
+				*desr_out << "XOR with Round Key: " + binToHex(xi) << endl;
+			} else {
+				*desr_out << "Expansion Permutation: " + right_exp << endl;
+				*desr_out << "XOR with Round Key: " + xi << endl;
+			}
 		}
         //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
         //concat *desr_outputs from s-boxes
@@ -414,7 +427,11 @@ int main( int argc, char *argv[] )
 		}
 		
 		if ( showstp ) {
-			*desr_out << "Sbox result: " << yi << endl;
+			if ( hex_rep ) {
+				*desr_out << "Sbox result: " << binToHex(yi) << endl;
+			} else {
+				*desr_out << "Sbox result: " << yi << endl;
+			}
 		}
         //The concatenated *desr_output from the T S-boxes, Yi, is then transposed using the P-box permutation
         string ui = permute(yi, pbox_trans_perm_vec);
@@ -424,8 +441,13 @@ int main( int argc, char *argv[] )
         //L1 = R0
         left = temp;
         if ( showstp ) {
-			*desr_out << "Left: " + left << endl;
-			*desr_out << "Right: " + right << endl;
+			if ( hex_rep ) {
+				*desr_out << "Left: " + binToHex(left) << endl;
+				*desr_out << "Right: " + binToHex(right) << endl;
+			} else {
+				*desr_out << "Left: " + left << endl;
+				*desr_out << "Right: " + right << endl;
+			}
 		}
     } // end of rounds loop
 //}
@@ -434,6 +456,10 @@ int main( int argc, char *argv[] )
     right = left;
     left = temp;
     string final = permute(left + right, init_permute_vec_inverse);
+    if ( hex_rep ) {
+		*desr_out << "Result: " + binToHex(final) << endl;
+	} else {
 		*desr_out << "Result: " + final << endl;
+	}
     return 0;
 }
