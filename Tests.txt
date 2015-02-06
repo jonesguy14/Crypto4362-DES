@@ -2,7 +2,7 @@ Tests
 =======================================================================================
 Using params.txt with SDES settings, ensuring encryption and decryption are inverses
 =======================================================================================
-./a.out -o- -k375 -s -e
+./a.out -s -o- -k375 -e //Encrypting 10110101 from ptxt.bin
 Block Size: 8
 Key Size: 10
 Eff Key Size: 10
@@ -29,29 +29,35 @@ Sboxes
 2103
 ---------
 
-Init permutation inverse: 4 1 3 5 7 2 8 6
-Plain: 10001010
+Init permutation inverse: 4 1 3 5 7 2 8 6 Rotating 1 Left
+Round 0 Left: 11010
+Round 0 Right: 10111
+Rotating 2 Left
+Round 1 Left: 01011
+Round 1 Right: 11110
+
+Initial Block: 10110101
 Key: 1101110101
-Initital Permutation: 00010011
-Left Split: 0001
-Right Split: 0011
+Initital Permutation: 01111100
+Left Split: 0111
+Right Split: 1100
 Round: 1
 Round Key: 10011011
-Expansion Permutation: 10010110
-XOR with Round Key: 00001101
-Sbox result: 0100
-Left: 0011
-Right: 1001
+Expansion Permutation: 01101001
+XOR with Round Key: 11110010
+Sbox result: 1001
+Left: 1100
+Right: 0010
 Round: 2
-Round Key: 11111010
-Expansion Permutation: 11000011
-XOR with Round Key: 00111001
+Round Key: 10111101
+Expansion Permutation: 00010100
+XOR with Round Key: 10101001
 Sbox result: 1010
-Left: 1001
-Right: 0000
-Result: 00010010
+Left: 0010
+Right: 1111
+11101100
 
-./a.out -o- -k375 -s -d
+./a.out -s -o- -k375 -d //Decrypting 11101100 from ctxt.bin
 Block Size: 8
 Key Size: 10
 Eff Key Size: 10
@@ -78,27 +84,33 @@ Sboxes
 2103
 ---------
 
-Init permutation inverse: 4 1 3 5 7 2 8 6
-Plain: 00010010
+Init permutation inverse: 4 1 3 5 7 2 8 6 Rotating 1 Left
+Round 0 Left: 11010
+Round 0 Right: 10111
+Rotating 2 Left
+Round 1 Left: 01011
+Round 1 Right: 11110
+
+Initial Block: 11101100
 Key: 1101110101
-Initital Permutation: 00001001
-Left Split: 0000
-Right Split: 1001
+Initital Permutation: 11110010
+Left Split: 1111
+Right Split: 0010
 Round: 1
-Round Key: 11111010
-Expansion Permutation: 11000011
-XOR with Round Key: 00111001
+Round Key: 10111101
+Expansion Permutation: 00010100
+XOR with Round Key: 10101001
 Sbox result: 1010
-Left: 1001
-Right: 0011
+Left: 0010
+Right: 1100
 Round: 2
 Round Key: 10011011
-Expansion Permutation: 10010110
-XOR with Round Key: 00001101
-Sbox result: 0100
-Left: 0011
-Right: 0001
-Result: 10001010
+Expansion Permutation: 01101001
+XOR with Round Key: 11110010
+Sbox result: 1001
+Left: 1100
+Right: 0111
+10110101 //Same as initial plaintext
 =======================================================================================
 Testing flags and default values
 =======================================================================================
