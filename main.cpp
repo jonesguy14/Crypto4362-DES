@@ -316,7 +316,7 @@ int main( int argc, char *argv[] )
 		*desr_out << "Left Split: " + left << endl;
 		*desr_out << "Right Split: " + right << endl;
 	}
-	
+	/*
 	int block;
     ifstream input("input.bin");
     input.open("input.bin", ios::binary | ios::in);
@@ -325,7 +325,7 @@ int main( int argc, char *argv[] )
 		input.read(&block, 1);
 		stringstream ss;
 		ss << a;
-		plain = ss.str();
+		plain = ss.str();*/
 		
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
@@ -392,7 +392,7 @@ int main( int argc, char *argv[] )
 			int colbitdec = binToDec( colbitstr );
 			
 			//size of *desr_output of sbox is the number of bits needed to represent all the entries
-			int output_size = log( sbox_height * sbox_width ) / log( 2 );
+			int output_size = log( sbox_width ) / log( 2 );
 
 			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
 		}
@@ -412,7 +412,7 @@ int main( int argc, char *argv[] )
 			*desr_out << "Right: " + right << endl;
 		}
     } // end of rounds loop
-}
+//}
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
