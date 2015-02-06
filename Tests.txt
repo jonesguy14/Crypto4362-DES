@@ -1,0 +1,109 @@
+Tests
+=======================================================================================
+Using params.txt with SDES settings, ensuring encryption and decryption are inverses
+=======================================================================================
+./a.out -o- -k375 -s -e
+Block Size: 8
+Key Size: 10
+Eff Key Size: 10
+Round Key Size: 8
+Num Rounds: 2
+Perm1: 3 5 2 7 4 10 1 9 8 6
+Perm2: 6 3 7 4 8 5 10 9
+Rotation: 1 2
+Init permutation: 2 6 3 1 4 8 5 7
+Expand permutation: 4 1 2 3 2 3 4 1
+P-Box transposition: 2 4 3 1
+Num SBoxes: 2
+Row Select Bits: 1 4
+Column Select Bits: 2 3
+Sboxes
+1032
+3210
+0213
+3132
+---------
+0123
+2013
+3010
+2103
+---------
+
+Init permutation inverse: 4 1 3 5 7 2 8 6
+Plain: 10001010
+Key: 1101110101
+Initital Permutation: 00010011
+Left Split: 0001
+Right Split: 0011
+Round: 1
+Round Key: 10011011
+Expansion Permutation: 10010110
+XOR with Round Key: 00001101
+Sbox result: 0100
+Left: 0011
+Right: 1001
+Round: 2
+Round Key: 11111010
+Expansion Permutation: 11000011
+XOR with Round Key: 00111001
+Sbox result: 1010
+Left: 1001
+Right: 0000
+Result: 00010010
+
+./a.out -o- -k375 -s -d
+Block Size: 8
+Key Size: 10
+Eff Key Size: 10
+Round Key Size: 8
+Num Rounds: 2
+Perm1: 3 5 2 7 4 10 1 9 8 6
+Perm2: 6 3 7 4 8 5 10 9
+Rotation: 1 2
+Init permutation: 2 6 3 1 4 8 5 7
+Expand permutation: 4 1 2 3 2 3 4 1
+P-Box transposition: 2 4 3 1
+Num SBoxes: 2
+Row Select Bits: 1 4
+Column Select Bits: 2 3
+Sboxes
+1032
+3210
+0213
+3132
+---------
+0123
+2013
+3010
+2103
+---------
+
+Init permutation inverse: 4 1 3 5 7 2 8 6
+Plain: 00010010
+Key: 1101110101
+Initital Permutation: 00001001
+Left Split: 0000
+Right Split: 1001
+Round: 1
+Round Key: 11111010
+Expansion Permutation: 11000011
+XOR with Round Key: 00111001
+Sbox result: 1010
+Left: 1001
+Right: 0011
+Round: 2
+Round Key: 10011011
+Expansion Permutation: 10010110
+XOR with Round Key: 00001101
+Sbox result: 0100
+Left: 0011
+Right: 0001
+Result: 10001010
+=======================================================================================
+Testing flags and default values
+=======================================================================================
+./a.out -o- -e
+Result: 00010010 //key is read from key.txt, plain from ptxt.bin
+
+./a.out -ooutput.txt -e
+//Nothing is displayed in stdout. output.txt has the information.
