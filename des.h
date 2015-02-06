@@ -5,6 +5,7 @@
  * 		Maximum Key Size: 256 bits (binary), due to hexToBin bitset<MAX_KEY_SIZE>. Can be changed.
  * Brittleness:
  *		Requires users to have valid inputs
+ *      Requires SBox Specifications to be in Decimal
  */
 #include <vector>
 #include <string>
@@ -22,5 +23,6 @@ std::string hexToBin(std::string hex_input, unsigned int size);
 std::string decToBin(int decimal_input, unsigned int size);
 int hex_char_to_decimal(std::string c);
 unsigned long long binToDec(std::string binary_input);
+std::vector<std::string> inversePermute(std::vector<std::string> permutation);
 
 #endif
