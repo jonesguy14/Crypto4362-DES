@@ -43,8 +43,8 @@ int main( int argc, char *argv[] )
     bool showstp = false; //if want to print intermediate steps
     bool hex_rep = false; //if want hexadecimal instead of binary
 
-    string input_file_str  = "ptxt.txt";
-    string output_file_str = "ctxt.txt";
+    string input_file_str  = "ptxt";
+    string output_file_str = "ctxt";
     string param_file_str  = "params.txt";
     string key_str_hex     = "key.txt";
     
@@ -54,6 +54,7 @@ int main( int argc, char *argv[] )
 	ostream* desr_out;
 
     bool using_stdin  = false; //if using stdin instead of input file
+    bool using_stdout = false; //if using stdout instead of output file
     bool setNewIn = false; //if set new input file name
     bool setNewOut = false; //if using std*desr_out instead of *desr_output file
     bool setNewKey = false; //set true if not using the key.txt file
@@ -93,6 +94,7 @@ int main( int argc, char *argv[] )
             if ( output_file_str == "-" ) {
                 //use stdout
                 setNewOut = true;
+                using_stdout = true;
                 desr_out = &cout;
             } else {
 				setNewOut = true;
@@ -113,15 +115,15 @@ int main( int argc, char *argv[] )
     }
     
     if ( setNewOut == false ) { //no -o flag
-        if ( encrypt ) output_file_str = "ctxt.txt";
-        if ( decrypt ) output_file_str = "ptxt.txt";
+        if ( encrypt ) output_file_str = "ctxt";
+        if ( decrypt ) output_file_str = "ptxt";
 		fout.open( output_file_str.c_str() );
 		desr_out = &fout;
 	}
 
     if ( setNewIn == false ) { //no -i flag
-        if ( encrypt ) input_file_str = "ptxt.txt";
-        if ( decrypt ) input_file_str = "ctxt.txt";
+        if ( encrypt ) input_file_str = "ptxt";
+        if ( decrypt ) input_file_str = "ctxt";
     }
 	
 	if ( setNewKey == false ) { //use default key.txt
@@ -382,7 +384,7 @@ int main( int argc, char *argv[] )
         left = splitLeft(init_permutation); //L0
         right = splitRight(init_permutation); //R0
         if ( showstp ) {
-            *desr_out << "------------------" << endl;
+            *desr_out << endl << "------------------" << endl;
     		if ( hex_rep ) {
     			*desr_out << "Initial Block: " + binToHex(plain) << endl;
     			*desr_out << "Key: " + binToHex(key) << endl;
@@ -488,5 +490,6 @@ int main( int argc, char *argv[] )
     		*desr_out << final;
     	}
     }//end get blocks
+    if ( using_stdout ) *desr_out << endl;
     return 0;
 }
