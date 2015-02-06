@@ -340,6 +340,28 @@ int main( int argc, char *argv[] )
 		*desr_out << "Left Split: " + left << endl;
 		*desr_out << "Right Split: " + right << endl;
 	}
+	//Generating the Keys
+	vector<string> key_vector;
+	//Apply Permutation 1 and split.
+	string key_permute = permute(key, permute_choice_pc1_vec);
+	string left_round = splitLeft(key_permute);
+	string right_round = splitRight(key_permute);
+	for (unsigned int i = 0; i < num_rounds; ++i)
+	{
+		//Apply rotation schedule to both sides, cumulatively
+		for (unsigned int j = 0; j < i + 1; ++j)
+		{
+		  left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
+		  right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
+		}
+
+		string round_key = left_round + right_round;
+		//Apply permutation 2
+		round_key = permute(round_key, permute_choice_pc2_vec);
+		//Final round key for that round is generated
+		key_vector.push_back(round_key);
+	}
+    //Round Keys are now fully generated
 	/*
 	int block;
     ifstream input("input.bin");
@@ -353,39 +375,13 @@ int main( int argc, char *argv[] )
 		
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
-        //Generating the Key
-        //Apply Permutation 1
-        string round_key = permute(key, permute_choice_pc1_vec);
-        string left_round = splitLeft(round_key);
-        string right_round = splitRight(round_key);
-        if ( showstp ) {
+		if ( showstp ) {
 			*desr_out << "Round: " << i + 1 << endl;
-			*desr_out << "Round Key: " + round_key << endl;
-			*desr_out << "Left Round: " + left_round << endl;
-			*desr_out << "Right Round: " + right_round << endl;
 		}
-        //Apply rotation schedule to both sides, cumulatively
-        for (unsigned int j = 0; j < i + 1; ++j)
-        {
-            left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
-            right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
-        }
-        
-        if ( showstp ) {
-			*desr_out << "Cycled Left Round: " + left_round << endl;
-			*desr_out << "Cycled Right Round: " + right_round << endl;
+		string round_key = key_vector[i];
+		if ( showstp ) {
+			*desr_out << "Round Key: " << round_key << endl;
 		}
-		
-        round_key = left_round + right_round;
-        if ( showstp ) {
-			*desr_out << "New Round Key: " + round_key << endl;
-		}
-        //Apply permutation 2
-        round_key = permute(round_key, permute_choice_pc2_vec);
-        if ( showstp ) {
-			*desr_out << "Final Round Key: " + round_key << endl;
-		}
-        //Round Key is now fully generated
 
         //Starting on F:
         //Apply Expansion Permutation to R0
