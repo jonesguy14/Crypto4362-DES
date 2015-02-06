@@ -374,6 +374,8 @@ int main( int argc, char *argv[] )
         }
     }
     
+    data.erase( remove_if( data.begin(), data.end(), ::isspace ), data.end() ); //remove whitespace form input
+    
     unsigned int chars_retrieved = 0;
     string combined_blocks_result = ""; //will stroe all the blocks in one string
     while( chars_retrieved < data.size() ) {
