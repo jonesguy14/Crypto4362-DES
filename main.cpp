@@ -43,8 +43,8 @@ int main( int argc, char *argv[] )
     bool showstp = false; //if want to print intermediate steps
     bool hex_rep = false; //if want hexadecimal instead of binary
 
-    string input_file_str  = "input.txt";
-    string output_file_str = "output.txt";
+    string input_file_str  = "ptxt.bin";
+    string output_file_str = "ctxt.bin";
     string param_file_str  = "params.txt";
     string key_str_hex     = "key.txt";
     
@@ -54,6 +54,7 @@ int main( int argc, char *argv[] )
 	ostream* desr_out;
 
     bool using_stdin  = false; //if using stdin instead of input file
+    bool setNewIn = false; //if set new input file name
     bool setNewOut = false; //if using std*desr_out instead of *desr_output file
     bool setNewKey = false; //set true if not using the key.txt file
 
@@ -79,6 +80,7 @@ int main( int argc, char *argv[] )
         }
         else if ( arg_str.substr(0, 2) == "-i" ) {
             //want different input file name
+            setNewIn = true;
             input_file_str = arg_str.substr(2, arg_str.length() - 2); //get str after '-i'
             if ( input_file_str == "-" ) {
                 //use stdin
@@ -111,9 +113,16 @@ int main( int argc, char *argv[] )
     }
     
     if ( setNewOut == false ) { //no -o flag
+        if ( encrypt ) output_file_str = "ctxt.bin";
+        if ( decrypt ) output_file_str = "ptxt.bin";
 		fout.open( output_file_str.c_str() );
 		desr_out = &fout;
 	}
+
+    if ( setNewIn == false ) { //no -i flag
+        if ( encrypt ) input_file_str = "ptxt.bin";
+        if ( decrypt ) input_file_str = "ctxt.bin";
+    }
 	
 	if ( setNewKey == false ) { //use default key.txt
 		string keyline;
@@ -343,39 +352,40 @@ int main( int argc, char *argv[] )
 		key_vector.push_back(round_key);
 	}
     //Round Keys are now fully generated
-	int curr_round = 0;
-
-	while(curr_round < num_rounds){
-		string plain;
-		streampos size;
-		char * memblock;
-	
-		ifstream file ("input.bin", ios::in|ios::binary|ios::ate);
-		if(file.is_open()){
-			
-			size = file.tellg();
-			memblock = new char[size];
-			file.seekg(0, ios::beg);
-			curr_round++;
-			file.read(memblock, size);
-			file.close();
-			plain = string(memblock);
-			delete[] memblock;
-		}
-		string init_permutation = permute(plain, init_permute_vec);
-		left = splitLeft(init_permutation); //L0
-		right = splitRight(init_permutation); //R0
+    int curr_round = 0;
+    string final_output = "";
+    while(curr_round < num_rounds){
+        string plain;
+        streampos size;
+        char * memblock;
+    
+        ifstream file (input_file_str, ios::in|ios::binary|ios::ate);
+        if(file.is_open()){
+            
+            size = file.tellg();
+            memblock = new char[size];
+            file.seekg(0, ios::beg);
+            curr_round++;
+            file.read(memblock, size);
+            file.close();
+            plain = string(memblock);
+            delete[] memblock;
+        }
+        string init_permutation = permute(plain, init_permute_vec);
+        left = splitLeft(init_permutation); //L0
+        right = splitRight(init_permutation); //R0
 
     
     if ( showstp ) {
+        *desr_out << endl;
 		if ( hex_rep ) {
-			*desr_out << "Plain: " + binToHex(plain) << endl;
+			*desr_out << "Initial Block: " + binToHex(plain) << endl;
 			*desr_out << "Key: " + binToHex(key) << endl;
 			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
 			*desr_out << "Left Split: " + binToHex(left) << endl;
 			*desr_out << "Right Split: " + binToHex(right) << endl;
 		} else {
-			*desr_out << "Plain: " + plain << endl;
+			*desr_out << "Initial Block: " + plain << endl;
 			*desr_out << "Key: " + key << endl;
 			*desr_out << "Initital Permutation: " + init_permutation << endl;
 			*desr_out << "Left Split: " + left << endl;
@@ -383,7 +393,7 @@ int main( int argc, char *argv[] )
 		}
 	}
 
-    for (unsigned int i = 0; i < num_rounds; ++i)
+    for (unsigned int i = 0; i < num_rounds; ++i) //begin the rounds
     {
 		if ( showstp ) {
 			*desr_out << "Round: " << i + 1 << endl;
@@ -410,7 +420,7 @@ int main( int argc, char *argv[] )
 		}
         //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
         //concat *desr_outputs from s-boxes
-        string yi;
+        string yi = "";
         for ( int i = 0; i < num_sboxes; ++i) { //Go through sboxes to find results
 			string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
 			
@@ -458,7 +468,6 @@ int main( int argc, char *argv[] )
 			}
 		}
     } // end of rounds loop
-}
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
@@ -469,5 +478,6 @@ int main( int argc, char *argv[] )
 	} else {
 		*desr_out << "Result: " + final << endl;
 	}
+}
     return 0;
 }
