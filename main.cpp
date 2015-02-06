@@ -317,6 +317,16 @@ int main( int argc, char *argv[] )
 		*desr_out << "Right Split: " + right << endl;
 	}
 	
+	int block;
+    ifstream input("input.bin");
+    input.open("input.bin", ios::binary | ios::in);
+    
+    while(!input.eof()){
+		input.read(&block, 1);
+		stringstream ss;
+		ss << a;
+		plain = ss.str();
+		
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
         //Generating the Key
@@ -402,6 +412,7 @@ int main( int argc, char *argv[] )
 			*desr_out << "Right: " + right << endl;
 		}
     } // end of rounds loop
+}
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
