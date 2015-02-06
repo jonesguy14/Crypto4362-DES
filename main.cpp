@@ -37,7 +37,7 @@ vector< vector< vector<int> > > make_sboxes(vector<string> lines, int num_sboxes
 }
 
 int main( int argc, char *argv[] )
-{
+{   
     bool encrypt = false; //if want to encrypt input
     bool decrypt = false; //if want to decrypt input
     bool showstp = false; //if want to print intermediate steps
@@ -48,11 +48,14 @@ int main( int argc, char *argv[] )
     string param_file_str  = "params.txt";
     string key_str_hex     = "key.txt";
     
+    string key_str_from_file;
+    
     ofstream fout;
 	ostream* desr_out;
 
     bool using_stdin  = false; //if using stdin instead of input file
     bool setNewOut = false; //if using std*desr_out instead of *desr_output file
+    bool setNewKey = false; //set true if not using the key.txt file
 
     if ( argc > 8 ) {
         cout << "Too many flags detected." << endl;
@@ -97,6 +100,8 @@ int main( int argc, char *argv[] )
         else if ( arg_str.substr(0, 2) == "-k" ) {
             //want to use key (in hex) from command line
             key_str_hex = arg_str.substr(2, arg_str.length() - 2); //get str after '-k'
+            setNewKey = true;
+            key_str_from_file = key_str_hex;
         }
         else if ( arg_str.substr(0, 2) == "-p" ) {
             //want different param file name
@@ -107,6 +112,17 @@ int main( int argc, char *argv[] )
     if ( setNewOut == false ) { //no -o flag
 		fout.open( output_file_str.c_str() );
 		desr_out = &fout;
+	}
+	
+	if ( setNewKey == false ) { //use default key.txt
+		string keyline;
+		ifstream key_file ( key_str_hex.c_str() );
+		if ( key_file.is_open() ) {
+			while ( key_file.good() ) {
+				getline( key_file, keyline );
+				key_str_from_file += keyline;
+			}
+		}
 	}
     
     int block_size, key_size, eff_key_size, rnd_key_size, num_rounds, num_sboxes;
@@ -304,8 +320,6 @@ int main( int argc, char *argv[] )
     string left, right;
     string key = hexToBin("357", key_size); //the master key
 
-
-
 	int curr_round = 0;
 
 	while(curr_round < num_rounds){
@@ -332,11 +346,19 @@ int main( int argc, char *argv[] )
 		right = splitRight(init_permutation); //R0
     
     if ( showstp ) {
-		*desr_out << "Plain: " + plain << endl;
-		*desr_out << "Key: " + key << endl;
-		*desr_out << "Initital Permutation: " + init_permutation << endl;
-		*desr_out << "Left Split: " + left << endl;
-		*desr_out << "Right Split: " + right << endl;
+		if ( hex_rep ) {
+			*desr_out << "Plain: " + binToHex(plain) << endl;
+			*desr_out << "Key: " + binToHex(key) << endl;
+			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
+			*desr_out << "Left Split: " + binToHex(left) << endl;
+			*desr_out << "Right Split: " + binToHex(right) << endl;
+		} else {
+			*desr_out << "Plain: " + plain << endl;
+			*desr_out << "Key: " + key << endl;
+			*desr_out << "Initital Permutation: " + init_permutation << endl;
+			*desr_out << "Left Split: " + left << endl;
+			*desr_out << "Right Split: " + right << endl;
+		}
 	}
 	
     for (unsigned int i = 0; i < num_rounds; ++i)
@@ -347,10 +369,17 @@ int main( int argc, char *argv[] )
         string left_round = splitLeft(round_key);
         string right_round = splitRight(round_key);
         if ( showstp ) {
-			*desr_out << "Round: " << i + 1 << endl;
-			*desr_out << "Round Key: " + round_key << endl;
-			*desr_out << "Left Round: " + left_round << endl;
-			*desr_out << "Right Round: " + right_round << endl;
+			if ( hex_rep ) {
+				*desr_out << "Round: " << i + 1 << endl;
+				*desr_out << "Round Key: " + binToHex(round_key) << endl;
+				*desr_out << "Left Round: " + binToHex(left_round) << endl;
+				*desr_out << "Right Round: " + binToHex(right_round) << endl;
+			} else {
+				*desr_out << "Round: " << i + 1 << endl;
+				*desr_out << "Round Key: " + round_key << endl;
+				*desr_out << "Left Round: " + left_round << endl;
+				*desr_out << "Right Round: " + right_round << endl;
+			}
 		}
         //Apply rotation schedule to both sides, cumulatively
         for (unsigned int j = 0; j < i + 1; ++j)
@@ -360,18 +389,31 @@ int main( int argc, char *argv[] )
         }
         
         if ( showstp ) {
-			*desr_out << "Cycled Left Round: " + left_round << endl;
-			*desr_out << "Cycled Right Round: " + right_round << endl;
+			if ( hex_rep ) {
+				*desr_out << "Cycled Left Round: " + binToHex(left_round) << endl;
+				*desr_out << "Cycled Right Round: " + binToHex(right_round) << endl;
+			} else {
+				*desr_out << "Cycled Left Round: " + binToHex(left_round) << endl;
+				*desr_out << "Cycled Right Round: " + binToHex(right_round) << endl;
+			}
 		}
 		
         round_key = left_round + right_round;
         if ( showstp ) {
-			*desr_out << "New Round Key: " + round_key << endl;
+			if ( hex_rep ) {
+				*desr_out << "New Round Key: " + binToHex(round_key) << endl;
+			} else {
+				*desr_out << "New Round Key: " + round_key << endl;
+			}
 		}
         //Apply permutation 2
         round_key = permute(round_key, permute_choice_pc2_vec);
         if ( showstp ) {
-			*desr_out << "Final Round Key: " + round_key << endl;
+			if ( hex_rep ) {
+				*desr_out << "Final Round Key: " + binToHex(round_key) << endl;
+			} else {
+				*desr_out << "Final Round Key: " + round_key << endl;
+			}
 		}
         //Round Key is now fully generated
 
@@ -380,8 +422,13 @@ int main( int argc, char *argv[] )
         string right_exp = permute(right, expan_permute_vec);
         string xi = XOR(right_exp, round_key);
         if ( showstp ) {
-			*desr_out << "Expansion Permutation: " + right_exp << endl;
-			*desr_out << "XOR with Round Key: " + xi << endl;
+			if ( hex_rep ) {
+				*desr_out << "Expansion Permutation: " + binToHex(right_exp) << endl;
+				*desr_out << "XOR with Round Key: " + binToHex(xi) << endl;
+			} else {
+				*desr_out << "Expansion Permutation: " + right_exp << endl;
+				*desr_out << "XOR with Round Key: " + xi << endl;
+			}
 		}
         //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
         //concat *desr_outputs from s-boxes
@@ -404,13 +451,17 @@ int main( int argc, char *argv[] )
 			int colbitdec = binToDec( colbitstr );
 			
 			//size of *desr_output of sbox is the number of bits needed to represent all the entries
-			int output_size = log( sbox_height * sbox_width ) / log( 2 );
+			int output_size = log( sbox_width ) / log( 2 );
 
 			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
 		}
 		
 		if ( showstp ) {
-			*desr_out << "Sbox result: " << yi << endl;
+			if ( hex_rep ) {
+				*desr_out << "Sbox result: " << binToHex(yi) << endl;
+			} else {
+				*desr_out << "Sbox result: " << yi << endl;
+			}
 		}
         //The concatenated *desr_output from the T S-boxes, Yi, is then transposed using the P-box permutation
         string ui = permute(yi, pbox_trans_perm_vec);
@@ -420,8 +471,13 @@ int main( int argc, char *argv[] )
         //L1 = R0
         left = temp;
         if ( showstp ) {
-			*desr_out << "Left: " + left << endl;
-			*desr_out << "Right: " + right << endl;
+			if ( hex_rep ) {
+				*desr_out << "Left: " + binToHex(left) << endl;
+				*desr_out << "Right: " + binToHex(right) << endl;
+			} else {
+				*desr_out << "Left: " + left << endl;
+				*desr_out << "Right: " + right << endl;
+			}
 		}
     } // end of rounds loop
 }
@@ -430,6 +486,10 @@ int main( int argc, char *argv[] )
     right = left;
     left = temp;
     string final = permute(left + right, init_permute_vec_inverse);
+    if ( hex_rep ) {
+		*desr_out << "Result: " + binToHex(final) << endl;
+	} else {
 		*desr_out << "Result: " + final << endl;
+	}
     return 0;
 }
