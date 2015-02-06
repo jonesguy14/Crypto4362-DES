@@ -37,7 +37,7 @@ vector< vector< vector<int> > > make_sboxes(vector<string> lines, int num_sboxes
 }
 
 int main( int argc, char *argv[] )
-{
+{   
     bool encrypt = false; //if want to encrypt input
     bool decrypt = false; //if want to decrypt input
     bool showstp = false; //if want to print intermediate steps
@@ -48,11 +48,14 @@ int main( int argc, char *argv[] )
     string param_file_str  = "params.txt";
     string key_str_hex     = "key.txt";
     
+    string key_str_from_file;
+    
     ofstream fout;
 	ostream* desr_out;
 
     bool using_stdin  = false; //if using stdin instead of input file
     bool setNewOut = false; //if using std*desr_out instead of *desr_output file
+    bool setNewKey = false; //set true if not using the key.txt file
 
     if ( argc > 8 ) {
         cout << "Too many flags detected." << endl;
@@ -97,6 +100,15 @@ int main( int argc, char *argv[] )
         else if ( arg_str.substr(0, 2) == "-k" ) {
             //want to use key (in hex) from command line
             key_str_hex = arg_str.substr(2, arg_str.length() - 2); //get str after '-k'
+            setNewKey = true;
+            string keyline;
+			ifstream key_file ( key_str_hex.c_str() );
+			if ( key_file.is_open() ) {
+				while ( key_file.good() ) {
+					getline( key_file, keyline );
+					key_str_from_file += keyline;
+				}
+			}  
         }
         else if ( arg_str.substr(0, 2) == "-p" ) {
             //want different param file name
@@ -107,6 +119,17 @@ int main( int argc, char *argv[] )
     if ( setNewOut == false ) { //no -o flag
 		fout.open( output_file_str.c_str() );
 		desr_out = &fout;
+	}
+	
+	if ( setNewKey == false ) { //use default key.txt
+		string keyline;
+		ifstream key_file ( key_str_hex.c_str() );
+		if ( key_file.is_open() ) {
+			while ( key_file.good() ) {
+				getline( key_file, keyline );
+				key_str_from_file += keyline;
+			}
+		}
 	}
     
     int block_size, key_size, eff_key_size, rnd_key_size, num_rounds, num_sboxes;
@@ -302,7 +325,8 @@ int main( int argc, char *argv[] )
 		}
 
     string left, right;
-    string key = hexToBin("357", key_size); //the master key
+    cout << "\nKey read from file: " << key_str_from_file << endl;
+    string key = hexToBin( key_str_from_file , key_size); //the master key
     string plain = "100101";
     //Initial Permutation, Split
     string init_permutation = permute(plain, init_permute_vec);
