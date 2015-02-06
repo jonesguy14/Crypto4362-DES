@@ -373,7 +373,9 @@ int main( int argc, char *argv[] )
             data += line;
         }
     }
+    
     unsigned int chars_retrieved = 0;
+    string combined_blocks_result = ""; //will stroe all the blocks in one string
     while( chars_retrieved < data.size() ) {
         string plain;
         if ( !hex_rep )
@@ -399,7 +401,7 @@ int main( int argc, char *argv[] )
         left = splitLeft(init_permutation); //L0
         right = splitRight(init_permutation); //R0
         if ( showstp ) {
-            *desr_out << endl << "------------------" << endl;
+            *desr_out << "\n\n-----NEW BLOCK-----" << endl;
     		if ( hex_rep ) {
     			*desr_out << "Initial Block: " + binToHex(plain) << endl;
     			*desr_out << "Key: " + binToHex(key) << endl;
@@ -418,7 +420,7 @@ int main( int argc, char *argv[] )
         for (unsigned int i = 0; i < num_rounds; ++i) //begin the rounds
         {
     		if ( showstp ) {
-    			*desr_out << "Round: " << i + 1 << endl;
+    			*desr_out << "---Round: " << i + 1 << "---" << endl;
     		}
     		string round_key = "";
     		if ( decrypt ) round_key = key_vector[num_rounds - i - 1]; //Decrypt uses keys in reverse order
@@ -501,10 +503,17 @@ int main( int argc, char *argv[] )
         string final = permute(left + right, init_permute_vec_inverse);
         if ( hex_rep ) {
     		*desr_out << binToHex(final);
+            combined_blocks_result += binToHex(final);
     	} else {
     		*desr_out << final;
+            combined_blocks_result += final;
     	}
     }//end get blocks
+    
+    if ( showstp ) {
+        *desr_out << "\n\nFinal result through all blocks: " << combined_blocks_result << endl;
+    }
     if ( using_stdout ) *desr_out << endl;
+    
     return 0;
 }
