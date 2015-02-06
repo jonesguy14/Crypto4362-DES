@@ -339,11 +339,8 @@ int main( int argc, char *argv[] )
 	for (unsigned int i = 0; i < num_rounds; ++i)
 	{
 		//Apply rotation schedule to both sides, cumulatively
-		for (unsigned int j = 0; j < i + 1; ++j)
-		{
-		  left_round = cycleLeft(left_round, rotation_schedule_vec[j]);
-		  right_round = cycleLeft(right_round, rotation_schedule_vec[j]);
-		}
+    	  left_round = cycleLeft(left_round, rotation_schedule_vec[i]);
+    	  right_round = cycleLeft(right_round, rotation_schedule_vec[i]);
 
 		string round_key = left_round + right_round;
 		//Apply permutation 2
@@ -375,7 +372,10 @@ int main( int argc, char *argv[] )
         left = splitLeft(init_permutation); //L0
         right = splitRight(init_permutation); //R0
 
-    
+    string plain = input_file_str;
+    string init_permutation = permute(plain, init_permute_vec);
+    left = splitLeft(init_permutation); //L0
+    right = splitRight(init_permutation); //R0
     if ( showstp ) {
         *desr_out << endl;
 		if ( hex_rep ) {
@@ -474,10 +474,10 @@ int main( int argc, char *argv[] )
     left = temp;
     string final = permute(left + right, init_permute_vec_inverse);
     if ( hex_rep ) {
-		*desr_out << "Result: " + binToHex(final) << endl;
+		*desr_out << binToHex(final) << endl;
 	} else {
-		*desr_out << "Result: " + final << endl;
+		*desr_out << final << endl;
 	}
-}
+}//end while loop
     return 0;
 }
