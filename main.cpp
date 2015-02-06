@@ -320,27 +320,6 @@ int main( int argc, char *argv[] )
 
     string left, right;
     string key = hexToBin( key_str_from_file , key_size); //the master key
-    string plain = "00100000";
-    //Initial Permutation, Split
-    string init_permutation = permute(plain, init_permute_vec);
-    left = splitLeft(init_permutation); //L0
-    right = splitRight(init_permutation); //R0
-    
-    if ( showstp ) {
-		if ( hex_rep ) {
-			*desr_out << "Plain: " + binToHex(plain) << endl;
-			*desr_out << "Key: " + binToHex(key) << endl;
-			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
-			*desr_out << "Left Split: " + binToHex(left) << endl;
-			*desr_out << "Right Split: " + binToHex(right) << endl;
-		} else {
-			*desr_out << "Plain: " + plain << endl;
-			*desr_out << "Key: " + key << endl;
-			*desr_out << "Initital Permutation: " + init_permutation << endl;
-			*desr_out << "Left Split: " + left << endl;
-			*desr_out << "Right Split: " + right << endl;
-		}
-	}
 	//Generating the Keys
 	vector<string> key_vector;
 	//Apply Permutation 1 and split.
@@ -364,17 +343,44 @@ int main( int argc, char *argv[] )
 		key_vector.push_back(round_key);
 	}
     //Round Keys are now fully generated
-	/*
-	int block;
-    ifstream input("input.bin");
-    input.open("input.bin", ios::binary | ios::in);
+	int curr_round = 0;
+
+	while(curr_round < num_rounds){
+		string plain;
+		streampos size;
+		char * memblock;
+	
+		ifstream file ("input.bin", ios::in|ios::binary|ios::ate);
+		if(file.is_open()){
+			
+			size = file.tellg();
+			memblock = new char[size];
+			file.seekg(0, ios::beg);
+			curr_round++;
+			file.read(memblock, size);
+			file.close();
+			plain = string(memblock);
+			delete[] memblock;
+		}
+
+
     
-    while(!input.eof()){
-		input.read(&block, 1);
-		stringstream ss;
-		ss << a;
-		plain = ss.str();*/
-		
+    if ( showstp ) {
+		if ( hex_rep ) {
+			*desr_out << "Plain: " + binToHex(plain) << endl;
+			*desr_out << "Key: " + binToHex(key) << endl;
+			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
+			*desr_out << "Left Split: " + binToHex(left) << endl;
+			*desr_out << "Right Split: " + binToHex(right) << endl;
+		} else {
+			*desr_out << "Plain: " + plain << endl;
+			*desr_out << "Key: " + key << endl;
+			*desr_out << "Initital Permutation: " + init_permutation << endl;
+			*desr_out << "Left Split: " + left << endl;
+			*desr_out << "Right Split: " + right << endl;
+		}
+	}
+
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
 		if ( showstp ) {
@@ -450,7 +456,7 @@ int main( int argc, char *argv[] )
 			}
 		}
     } // end of rounds loop
-//}
+}
     //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
     string temp = right;
     right = left;
