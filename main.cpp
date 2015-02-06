@@ -362,7 +362,9 @@ int main( int argc, char *argv[] )
 			plain = string(memblock);
 			delete[] memblock;
 		}
-
+		string init_permutation = permute(plain, init_permute_vec);
+		left = splitLeft(init_permutation); //L0
+		right = splitRight(init_permutation); //R0
 
     
     if ( showstp ) {
