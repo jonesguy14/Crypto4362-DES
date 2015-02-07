@@ -353,7 +353,7 @@ int main( int argc, char *argv[] )
     //Round Keys are now fully generated
     //Get data from files
     string data;
-    if ( !using_stdin )
+    if ( !using_stdin && !hex_rep )
     {
         streampos size;
         char * memblock;
@@ -373,12 +373,24 @@ int main( int argc, char *argv[] )
             delete[] memblock;
         }
     }
-    else
+    else if ( using_stdin )
     {
         string line;
         while ( getline(cin, line) )
         {
             data += line;
+        }
+    }
+    else
+    {
+        ifstream file (input_file_str);
+        if(file.is_open()){
+            string line;
+            while ( getline(file, line) )
+            {
+                data += line;
+            }
+            file.close();
         }
     }
 
