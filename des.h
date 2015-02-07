@@ -8,7 +8,8 @@
  *      											  SBox bits need to select permutations that exist 
  *      Requires SBox Specifications to be in Decimal
  *      Params are assumed to be the same type as given in the project description
- *      stdin is assumed ASCII represented hex or binary. Files are assumed standard binary.
+ *      stdin is assumed ASCII represented hex or binary. stdout is in ASCII represented hex or binary.
+  *     Files are assumed standard binary and outputted in standard binary.
  * Deviations from Specs:
  */
 #include <vector>

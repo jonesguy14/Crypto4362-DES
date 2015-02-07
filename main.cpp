@@ -523,7 +523,7 @@ int main( int argc, char *argv[] )
         *desr_out << "\n\nFinal result through all blocks: " << combined_blocks_result << endl;
     }
     if ( using_stdout ) *desr_out << endl;
-    fout.close();
+    if (fout.is_open()) fout.close();
     if ( !using_stdout && !hex_rep && !showstp ) //convert outputted ASCII binary to regular binary
     {
         string temp;
