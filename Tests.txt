@@ -323,13 +323,27 @@ Testing flags and default values
 Testing white space in input file
 =======================================================================================
 
-//White space in input file should not affect our outcome.
-//The first file we use is ptxt, which is "100"
-./proj1 -o- -e 
-    Result: 01100100
+//White space in input file should not affect our outcome
+//The first file we use is ptxt, which is "1000" in ASCII
+./proj1 -o- -e -x
+    Result: b192
     
-//Next, we change ptxt so it is now "1 0 0" (notice spaces)
-    Result: 01100100
+//Next, we change ptxt so it is now "1 0 0 0" (notice spaces)
+    Result: b192
     
 //Since results are the same, we can say that whitespace doesn't affect how we
-interpret the input.
+//interpret the input.
+
+=======================================================================================
+Testing Block Padding
+=======================================================================================
+
+/* If input doesn't evenly divide the block size, it should fill in 0s at the end until
+ * it does.
+ * The first file we use is ptxt, which is "100" in ASCII hex, which is 12 bits. 
+ * It should fill in 4 bits of 0s at the end and come up with the same result as the previous test.
+ */
+./proj1 -o- -e -x
+    Result: b192
+    
+//Since results are the same, we can say that it properly filled them in.
