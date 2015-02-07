@@ -355,14 +355,22 @@ int main( int argc, char *argv[] )
     string data;
     if ( !using_stdin )
     {
-        ifstream file (input_file_str);
-        if(file.is_open()){
-            string line;
-            while ( getline(file, line) )
-            {
-                data += line;
-            }
+        streampos size;
+        char * memblock;
+        ifstream file (input_file_str, ios::in|ios::binary|ios::ate);
+        if (file.is_open())
+        {
+            size = file.tellg();
+            memblock = new char [size];
+            file.seekg (0, ios::beg);
+            file.read (memblock, size);
             file.close();
+            string temp = string(memblock);
+            for (unsigned int i = 0; i < temp.size(); ++i)
+            {
+                data += decToBin((int)temp[i], 8); //read binary information
+            }
+            delete[] memblock;
         }
     }
     else
@@ -373,11 +381,11 @@ int main( int argc, char *argv[] )
             data += line;
         }
     }
-    
-    data.erase( remove_if( data.begin(), data.end(), ::isspace ), data.end() ); //remove whitespace form input
-    
+
+    data.erase( remove_if( data.begin(), data.end(), ::isspace ), data.end() ); //remove whitespace from input
+
     unsigned int chars_retrieved = 0;
-    string combined_blocks_result = ""; //will stroe all the blocks in one string
+    string combined_blocks_result = ""; //will store all the blocks in one string
     while( chars_retrieved < data.size() ) {
         string plain;
         if ( !hex_rep )
@@ -511,11 +519,34 @@ int main( int argc, char *argv[] )
             combined_blocks_result += final;
     	}
     }//end get blocks
-    
     if ( showstp ) {
         *desr_out << "\n\nFinal result through all blocks: " << combined_blocks_result << endl;
     }
     if ( using_stdout ) *desr_out << endl;
-    
+    fout.close();
+    if ( !using_stdout && !hex_rep && !showstp ) //convert outputted ASCII binary to regular binary
+    {
+        string temp;
+        ifstream file (output_file_str);
+        if(file.is_open()){
+            string line;
+            while ( getline(file, line) )
+            {
+                temp += line;
+            }
+            file.close();
+        }
+        ofstream outfile(output_file_str, ios::binary);
+        if (outfile)
+        {
+            for (unsigned int i = 0; i < temp.size(); i += 8)
+            {
+                string temp2 = temp.substr(i, 8);
+                char byte = (char)binToDec(temp2);
+                outfile.write(&byte,1);
+            }
+            outfile.close();
+        }
+    }
     return 0;
 }

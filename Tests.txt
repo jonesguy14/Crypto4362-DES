@@ -3,7 +3,7 @@ Tests
 Using params.txt with SDES settings, ensuring encryption and decryption are inverses
 =======================================================================================
 
-./proj1 -s -o- -k375 -e //Encrypting 10110101 from ptxt.bin
+./proj1 -s -o- -k375 -e //Encrypting 10110101 from ptxt
     Block Size: 8
     Key Size: 10
     Eff Key Size: 10
@@ -30,12 +30,7 @@ Using params.txt with SDES settings, ensuring encryption and decryption are inve
     2103
     ---------
 
-    Init permutation inverse: 4 1 3 5 7 2 8 6 Rotating 1 Left
-    Round 0 Left: 11010
-    Round 0 Right: 10111
-    Rotating 2 Left
-    Round 1 Left: 01011
-    Round 1 Right: 11110
+    Init permutation inverse: 4 1 3 5 7 2 8 6
 
     Initial Block: 10110101
     Key: 1101110101
@@ -58,7 +53,7 @@ Using params.txt with SDES settings, ensuring encryption and decryption are inve
     Right: 1111
     11101100
 
-./proj1 -s -o- -k375 -d //Decrypting 11101100 from ctxt.bin
+./proj1 -s -o- -k375 -d //Decrypting 11101100 from ctxt
     Block Size: 8
     Key Size: 10
     Eff Key Size: 10
@@ -85,12 +80,7 @@ Using params.txt with SDES settings, ensuring encryption and decryption are inve
     2103
     ---------
 
-    Init permutation inverse: 4 1 3 5 7 2 8 6 Rotating 1 Left
-    Round 0 Left: 11010
-    Round 0 Right: 10111
-    Rotating 2 Left
-    Round 1 Left: 01011
-    Round 1 Right: 11110
+    Init permutation inverse: 4 1 3 5 7 2 8 6
 
     Initial Block: 11101100
     Key: 1101110101
@@ -123,7 +113,7 @@ Testing flags and default values
 *** Testing -o ***
 ==================
 ./proj1 -o- -e
-    Result: 00010010 //key is read from key.txt, plain from ptxt.bin
+    Result: 00010010 //key is read from key.txt, plain from ptxt
 
 ./proj1 -ooutput.txt -e
     //Nothing is displayed in stdout. output.txt has the information.
@@ -245,11 +235,11 @@ Testing flags and default values
 
 *** Testing -x ***
 ==================
-//Using no -x so no steps should be in binary
+//Using no -x so should be in binary
 ./proj1 -o- -e 
     Result: 01100100
     
-//Using -x so no steps should be in hex
+//Using -x so should be in hex and read key as hex
 ./proj1 -o- -e -x
     Result: 8C22
     
