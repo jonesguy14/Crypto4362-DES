@@ -10,8 +10,8 @@
  *      Params are assumed to be the same type as given in the project description
  * Usage:
  *      stdin is assumed ASCII represented hex or binary, depending on -x. stdout is in ASCII represented hex or binary.
- *      Files are assumed standard binary and outputted in standard binary, unless -x then files are assumed
- *		ASCII represented hex and outputted in ASCII represented hex
+ *      Files are assumed standard binary and outputted in standard binary, unless -x then files are assumed 
+ *      ASCII represented hex and outputted in ASCII represented hex
  *      When -s is selected, all outputs are in ASCII.
  * Deviations from Specs:
  */

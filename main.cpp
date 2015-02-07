@@ -356,21 +356,18 @@ int main( int argc, char *argv[] )
     if ( !using_stdin && !hex_rep )
     {
         streampos size;
-        char * memblock;
+        vector< char > fileContents;
         ifstream file (input_file_str, ios::in|ios::binary|ios::ate);
         if (file.is_open())
         {
-            size = file.tellg();
-            memblock = new char [size];
+            fileContents.resize(file.tellg());
             file.seekg (0, ios::beg);
-            file.read (memblock, size);
+            file.read (&fileContents[ 0 ], fileContents.size());
             file.close();
-            string temp = string(memblock);
-            for (unsigned int i = 0; i < temp.size(); ++i)
+            for (unsigned int i = 0; i < fileContents.size(); ++i)
             {
-                data += decToBin((int)temp[i], 8); //read binary information
+                data += decToBin((int)fileContents[i], 8); //read binary information
             }
-            delete[] memblock;
         }
     }
     else if ( using_stdin )
@@ -393,7 +390,6 @@ int main( int argc, char *argv[] )
             file.close();
         }
     }
-
     data.erase( remove_if( data.begin(), data.end(), ::isspace ), data.end() ); //remove whitespace from input
 
     unsigned int chars_retrieved = 0;

@@ -2,7 +2,15 @@ Tests
 =======================================================================================
 Using params.txt with SDES settings, ensuring encryption and decryption are inverses
 =======================================================================================
+// First, high level encryption/decryption to ensure that it works as a whole.
+// ptxt contains the phrase: Hello, how are you doing?
+./proj1 -e -k340
+    ctxt contains: x@µµ™!ÞÐ™œÞ(@Þ®™—ÞO™¿äÂ
+./proj1 -d -k340 -oplain.txt
+    plain.txt contains: Hello, how are you doing?
 
+// From here on out, if our file contains for example the character 'A' we'll say that we're encrypting
+// "01000001".
 ./proj1 -s -o- -k375 -e //Encrypting 10110101 from ptxt
     Block Size: 8
     Key Size: 10
