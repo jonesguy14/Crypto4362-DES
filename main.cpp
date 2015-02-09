@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
     string key_str_from_file;
     
     ofstream fout;
-	ostream* desr_out;
+    ostream* desr_out;
 
     bool using_stdin  = false; //if using stdin instead of input file
     bool using_stdout = false; //if using stdout instead of output file
@@ -71,7 +71,7 @@ int main( int argc, char *argv[] )
         }
         else if ( arg_str == "-d" ) {
             decrypt = true;
-			encrypt = false;
+            encrypt = false;
         }
         else if ( arg_str == "-s" ) {
             showstp = true;
@@ -97,10 +97,10 @@ int main( int argc, char *argv[] )
                 using_stdout = true;
                 desr_out = &cout;
             } else {
-				setNewOut = true;
-				fout.open( output_file_str.c_str() );
-				desr_out = &fout;
-			}
+                setNewOut = true;
+                fout.open( output_file_str.c_str() );
+                desr_out = &fout;
+            }
         }
         else if ( arg_str.substr(0, 2) == "-k" ) {
             //want to use key (in hex) from command line
@@ -117,25 +117,25 @@ int main( int argc, char *argv[] )
     if ( setNewOut == false ) { //no -o flag
         if ( encrypt ) output_file_str = "ctxt";
         if ( decrypt ) output_file_str = "ptxt";
-		fout.open( output_file_str.c_str() );
-		desr_out = &fout;
-	}
+        fout.open( output_file_str.c_str() );
+        desr_out = &fout;
+    }
 
     if ( setNewIn == false ) { //no -i flag
         if ( encrypt ) input_file_str = "ptxt";
         if ( decrypt ) input_file_str = "ctxt";
     }
-	
-	if ( setNewKey == false ) { //use default key.txt
-		string keyline;
-		ifstream key_file ( key_str_hex.c_str() );
-		if ( key_file.is_open() ) {
-			while ( key_file.good() ) {
-				getline( key_file, keyline );
-				key_str_from_file += keyline;
-			}
-		}
-	}
+    
+    if ( setNewKey == false ) { //use default key.txt
+        string keyline;
+        ifstream key_file ( key_str_hex.c_str() );
+        if ( key_file.is_open() ) {
+            while ( key_file.good() ) {
+                getline( key_file, keyline );
+                key_str_from_file += keyline;
+            }
+        }
+    }
     
     int block_size, key_size, eff_key_size, rnd_key_size, num_rounds, num_sboxes;
     vector<string>    permute_choice_pc1_vec;
@@ -268,66 +268,66 @@ int main( int argc, char *argv[] )
         sboxes = make_sboxes( sbox_lines, num_sboxes, sbox_height, sbox_width );
     }
 
-	if ( showstp ) {
-		//Printing to make sure parsing was correct
-		*desr_out << "Block Size: " << block_size << endl;
-		*desr_out << "Key Size: " << key_size << endl;
-		*desr_out << "Eff Key Size: " << eff_key_size << endl;
-		*desr_out << "Round Key Size: " << rnd_key_size << endl;
-		*desr_out << "Num Rounds: " << num_rounds << endl;
-		*desr_out << "Perm1: ";
-		for (int i = 0; i < permute_choice_pc1_vec.size(); ++i) {
-			*desr_out << permute_choice_pc1_vec[i] << " ";
-		}
-		*desr_out << "\nPerm2: ";
-		for (int i = 0; i < permute_choice_pc2_vec.size(); ++i) {
-			*desr_out << permute_choice_pc2_vec[i] << " ";
-		}
-		*desr_out << "\nRotation: ";
-		for (int i = 0; i < rotation_schedule_vec.size(); ++i) {
-			*desr_out << rotation_schedule_vec[i] << " ";
-		}
-		*desr_out << "\nInit permutation: ";
-		for (int i = 0; i < init_permute_vec.size(); ++i) {
-			*desr_out << init_permute_vec[i] << " ";
-		}
-		*desr_out << "\nExpand permutation: ";
-		for (int i = 0; i < expan_permute_vec.size(); ++i) {
-			*desr_out << expan_permute_vec[i] << " ";
-		}
-		*desr_out << "\nP-Box transposition: ";
-		for (int i = 0; i < pbox_trans_perm_vec.size(); ++i) {
-			*desr_out << pbox_trans_perm_vec[i] << " ";
-		}
-		*desr_out << "\nNum SBoxes: " << num_sboxes << endl;
-		*desr_out << "Row Select Bits: ";
-		for (int i = 0; i < row_selection_vec.size(); ++i) {
-			*desr_out << row_selection_vec[i] << " ";
-		}
-		*desr_out << "\nColumn Select Bits: ";
-		for (int i = 0; i < col_selection_vec.size(); ++i) {
-			*desr_out << col_selection_vec[i] << " ";
-		}
+    if ( showstp ) {
+        //Printing to make sure parsing was correct
+        *desr_out << "Block Size: " << block_size << endl;
+        *desr_out << "Key Size: " << key_size << endl;
+        *desr_out << "Eff Key Size: " << eff_key_size << endl;
+        *desr_out << "Round Key Size: " << rnd_key_size << endl;
+        *desr_out << "Num Rounds: " << num_rounds << endl;
+        *desr_out << "Perm1: ";
+        for (int i = 0; i < permute_choice_pc1_vec.size(); ++i) {
+            *desr_out << permute_choice_pc1_vec[i] << " ";
+        }
+        *desr_out << "\nPerm2: ";
+        for (int i = 0; i < permute_choice_pc2_vec.size(); ++i) {
+            *desr_out << permute_choice_pc2_vec[i] << " ";
+        }
+        *desr_out << "\nRotation: ";
+        for (int i = 0; i < rotation_schedule_vec.size(); ++i) {
+            *desr_out << rotation_schedule_vec[i] << " ";
+        }
+        *desr_out << "\nInit permutation: ";
+        for (int i = 0; i < init_permute_vec.size(); ++i) {
+            *desr_out << init_permute_vec[i] << " ";
+        }
+        *desr_out << "\nExpand permutation: ";
+        for (int i = 0; i < expan_permute_vec.size(); ++i) {
+            *desr_out << expan_permute_vec[i] << " ";
+        }
+        *desr_out << "\nP-Box transposition: ";
+        for (int i = 0; i < pbox_trans_perm_vec.size(); ++i) {
+            *desr_out << pbox_trans_perm_vec[i] << " ";
+        }
+        *desr_out << "\nNum SBoxes: " << num_sboxes << endl;
+        *desr_out << "Row Select Bits: ";
+        for (int i = 0; i < row_selection_vec.size(); ++i) {
+            *desr_out << row_selection_vec[i] << " ";
+        }
+        *desr_out << "\nColumn Select Bits: ";
+        for (int i = 0; i < col_selection_vec.size(); ++i) {
+            *desr_out << col_selection_vec[i] << " ";
+        }
 
-		*desr_out << "\nSboxes" << endl;
-		for (int i = 0; i < num_sboxes; ++i) {
-			for (int j = 0; j < sbox_height; ++j) {
-				for (int k = 0; k < sbox_width; ++k) {
-					*desr_out << sboxes[i][j][k];
-				}
-				*desr_out << endl;
-			}
-			*desr_out << "---------" << endl;
-		}
-	}
-	
+        *desr_out << "\nSboxes" << endl;
+        for (int i = 0; i < num_sboxes; ++i) {
+            for (int j = 0; j < sbox_height; ++j) {
+                for (int k = 0; k < sbox_width; ++k) {
+                    *desr_out << sboxes[i][j][k];
+                }
+                *desr_out << endl;
+            }
+            *desr_out << "---------" << endl;
+        }
+    }
+    
     vector<string> init_permute_vec_inverse = inversePermute(init_permute_vec);
-	if ( showstp ) {
-		*desr_out << "\nInit permutation inverse: ";
-	  for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
-	      *desr_out << init_permute_vec_inverse[i] << " ";
-	  }
-	}
+    if ( showstp ) {
+        *desr_out << "\nInit permutation inverse: ";
+      for (int i = 0; i < init_permute_vec_inverse.size(); ++i) {
+          *desr_out << init_permute_vec_inverse[i] << " ";
+      }
+    }
 
     string left, right;
     string key = hexToBin( key_str_from_file , key_size ); //the master key
@@ -340,15 +340,15 @@ int main( int argc, char *argv[] )
     //Generate for each round
     for (unsigned int i = 0; i < num_rounds; ++i)
     {
-    	//Apply rotation schedule to both sides, cumulatively
-    	left_round = cycleLeft(left_round, rotation_schedule_vec[i]);
-    	right_round = cycleLeft(right_round, rotation_schedule_vec[i]);
+        //Apply rotation schedule to both sides, cumulatively
+        left_round = cycleLeft(left_round, rotation_schedule_vec[i]);
+        right_round = cycleLeft(right_round, rotation_schedule_vec[i]);
 
-    	string round_key = left_round + right_round;
-    	//Apply permutation 2
-    	round_key = permute(round_key, permute_choice_pc2_vec);
-    	//Final round key for that round is generated
-    	key_vector.push_back(round_key);
+        string round_key = left_round + right_round;
+        //Apply permutation 2
+        round_key = permute(round_key, permute_choice_pc2_vec);
+        //Final round key for that round is generated
+        key_vector.push_back(round_key);
     }
     //Round Keys are now fully generated
     //Get data from files
@@ -420,83 +420,83 @@ int main( int argc, char *argv[] )
         right = splitRight(init_permutation); //R0
         if ( showstp ) {
             *desr_out << "\n\n-----NEW BLOCK-----" << endl;
-    		if ( hex_rep ) {
-    			*desr_out << "Initial Block: " + binToHex(plain) << endl;
-    			*desr_out << "Key: " + binToHex(key) << endl;
-    			*desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
-    			*desr_out << "Left Split: " + binToHex(left) << endl;
-    			*desr_out << "Right Split: " + binToHex(right) << endl;
-    		} else {
-    			*desr_out << "Initial Block: " + plain << endl;
-    			*desr_out << "Key: " + key << endl;
-    			*desr_out << "Initital Permutation: " + init_permutation << endl;
-    			*desr_out << "Left Split: " + left << endl;
-    			*desr_out << "Right Split: " + right << endl;
-    		}
-    	}
+            if ( hex_rep ) {
+                *desr_out << "Initial Block: " + binToHex(plain) << endl;
+                *desr_out << "Key: " + binToHex(key) << endl;
+                *desr_out << "Initital Permutation: " + binToHex(init_permutation) << endl;
+                *desr_out << "Left Split: " + binToHex(left) << endl;
+                *desr_out << "Right Split: " + binToHex(right) << endl;
+            } else {
+                *desr_out << "Initial Block: " + plain << endl;
+                *desr_out << "Key: " + key << endl;
+                *desr_out << "Initital Permutation: " + init_permutation << endl;
+                *desr_out << "Left Split: " + left << endl;
+                *desr_out << "Right Split: " + right << endl;
+            }
+        }
 
         for (unsigned int i = 0; i < num_rounds; ++i) //begin the rounds
         {
-    		if ( showstp ) {
-    			*desr_out << "---Round: " << i + 1 << "---" << endl;
-    		}
-    		string round_key = "";
-    		if ( decrypt ) round_key = key_vector[num_rounds - i - 1]; //Decrypt uses keys in reverse order
-    		if ( encrypt ) round_key = key_vector[i];
-    		if ( showstp ) {
+            if ( showstp ) {
+                *desr_out << "---Round: " << i + 1 << "---" << endl;
+            }
+            string round_key = "";
+            if ( decrypt ) round_key = key_vector[num_rounds - i - 1]; //Decrypt uses keys in reverse order
+            if ( encrypt ) round_key = key_vector[i];
+            if ( showstp ) {
                 if ( hex_rep ) {
                     *desr_out << "Round Key: " << binToHex(round_key) << endl;
                 } else {
                     *desr_out << "Round Key: " << round_key << endl;
                 }
-    		}
+            }
 
             //Starting on F:
             //Apply Expansion Permutation to R0
             string right_exp = permute(right, expan_permute_vec);
             string xi = XOR(right_exp, round_key);
             if ( showstp ) {
-    			if ( hex_rep ) {
-    				*desr_out << "Expansion Permutation: " + binToHex(right_exp) << endl;
-    				*desr_out << "XOR with Round Key: " + binToHex(xi) << endl;
-    			} else {
-    				*desr_out << "Expansion Permutation: " + right_exp << endl;
-    				*desr_out << "XOR with Round Key: " + xi << endl;
-    			}
-    		}
+                if ( hex_rep ) {
+                    *desr_out << "Expansion Permutation: " + binToHex(right_exp) << endl;
+                    *desr_out << "XOR with Round Key: " + binToHex(xi) << endl;
+                } else {
+                    *desr_out << "Expansion Permutation: " + right_exp << endl;
+                    *desr_out << "XOR with Round Key: " + xi << endl;
+                }
+            }
             //xi is split into (number of s boxes) equal pieces, each with Round key size/number of S boxes bits
             //concat *desr_outputs from s-boxes
             string yi = "";
             for ( int i = 0; i < num_sboxes; ++i) { //Go through sboxes to find results
-    			string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
-    			
-    			//find row selection bits
-    			string rowbitstr = "";
-    			for ( int r = 0; r < row_selection_vec.size(); ++r) { //find each bit in the row select vector
-    				rowbitstr += xi_subset[ atoi( row_selection_vec[r].c_str() ) - 1 ];
-    			}
-    			int rowbitdec = binToDec( rowbitstr );
-    			
-    			//find column selection bits
-    			string colbitstr = "";
-    			for ( int c = 0; c < col_selection_vec.size(); ++c) { //find each bit in the col select vector
-    				colbitstr += xi_subset[ atoi( col_selection_vec[c].c_str() ) - 1 ];
-    			}
-    			int colbitdec = binToDec( colbitstr );
-    			
-    			//size of *desr_output of sbox is the number of bits needed to represent all the entries
-    			int output_size = log( sbox_width ) / log( 2 );
+                string xi_subset = xi.substr( i*xi.length()/num_sboxes, xi.length()/num_sboxes );
+                
+                //find row selection bits
+                string rowbitstr = "";
+                for ( int r = 0; r < row_selection_vec.size(); ++r) { //find each bit in the row select vector
+                    rowbitstr += xi_subset[ atoi( row_selection_vec[r].c_str() ) - 1 ];
+                }
+                int rowbitdec = binToDec( rowbitstr );
+                
+                //find column selection bits
+                string colbitstr = "";
+                for ( int c = 0; c < col_selection_vec.size(); ++c) { //find each bit in the col select vector
+                    colbitstr += xi_subset[ atoi( col_selection_vec[c].c_str() ) - 1 ];
+                }
+                int colbitdec = binToDec( colbitstr );
+                
+                //size of *desr_output of sbox is the number of bits needed to represent all the entries
+                int output_size = log( sbox_width ) / log( 2 );
 
-    			yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
-    		}
-    		
-    		if ( showstp ) {
-    			if ( hex_rep ) {
-    				*desr_out << "Sbox result: " << binToHex(yi) << endl;
-    			} else {
-    				*desr_out << "Sbox result: " << yi << endl;
-    			}
-    		}
+                yi += decToBin( sboxes[i][rowbitdec][colbitdec], output_size );
+            }
+            
+            if ( showstp ) {
+                if ( hex_rep ) {
+                    *desr_out << "Sbox result: " << binToHex(yi) << endl;
+                } else {
+                    *desr_out << "Sbox result: " << yi << endl;
+                }
+            }
             //The concatenated *desr_output from the T S-boxes, Yi, is then transposed using the P-box permutation
             string ui = permute(yi, pbox_trans_perm_vec);
             // Ui, which is then XORed with L0 to form R1.
@@ -505,14 +505,14 @@ int main( int argc, char *argv[] )
             //L1 = R0
             left = temp;
             if ( showstp ) {
-    			if ( hex_rep ) {
-    				*desr_out << "Left: " + binToHex(left) << endl;
-    				*desr_out << "Right: " + binToHex(right) << endl;
-    			} else {
-    				*desr_out << "Left: " + left << endl;
-    				*desr_out << "Right: " + right << endl;
-    			}
-    		}
+                if ( hex_rep ) {
+                    *desr_out << "Left: " + binToHex(left) << endl;
+                    *desr_out << "Right: " + binToHex(right) << endl;
+                } else {
+                    *desr_out << "Left: " + left << endl;
+                    *desr_out << "Right: " + right << endl;
+                }
+            }
         } // end of rounds loop
         //After the final round, the left and right halves are swapped and the inverse initial permutation is applied to form the ciphertext C
         string temp = right;
@@ -520,12 +520,12 @@ int main( int argc, char *argv[] )
         left = temp;
         string final = permute(left + right, init_permute_vec_inverse);
         if ( hex_rep ) {
-    		*desr_out << binToHex(final);
+            *desr_out << binToHex(final);
             combined_blocks_result += binToHex(final);
-    	} else {
-    		*desr_out << final;
+        } else {
+            *desr_out << final;
             combined_blocks_result += final;
-    	}
+        }
     }//end get blocks
     if ( showstp ) {
         *desr_out << "\n\nFinal result through all blocks: " << combined_blocks_result << endl;

@@ -148,11 +148,11 @@ Testing flags and default values
 
 *** Testing -i ***
 ==================
-//Using default ptxt, which is "100"
+//Using default ptxt, which is "10000000"
 ./proj1 -o- -e 
     Result: 01100100
 
-//using custom input file, plainNew which is "101"
+//using custom input file, plainNew which is "10100000"
 ./proj1 -o- -e -iplainNew
     Result: 11001100
     
@@ -243,11 +243,11 @@ Testing flags and default values
 
 *** Testing -x ***
 ==================
-//Using no -x so should be in binary
+//Using no -x so should be in binary on ptxt "10000000"
 ./proj1 -o- -e 
     Result: 01100100
     
-//Using -x so should be in hex and read key as hex
+//Using -x so should read in as hex and output as hex on ptxt "1000"
 ./proj1 -o- -e -x
     Result: 8C22
     
